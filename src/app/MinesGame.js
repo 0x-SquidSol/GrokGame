@@ -9,7 +9,7 @@ const TOKEN_MINT = new PublicKey('2ZAm4d5FqtFjDpxbUgoksdTAXDnDmCHK2zP2yvxApump')
 const DECIMALS = 6;
 const BET = 25000;
 const PAYOUTS = [0, 1.5, 2.0, 3.0, 5.0]; // 0-4 safe tiles
-const TREASURY_WALLET = new PublicKey('YOUR_TREASURY_HERE');
+const TREASURY_WALLET = new PublicKey('HYvDA63EK9N3G6hvvvz6PiAzMhmSCMB4LVDPW9QYBLWx');
 
 export default function MinesGame({ onWin }) {
   const { connection } = useConnection();
