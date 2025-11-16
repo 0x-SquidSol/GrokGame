@@ -16,6 +16,10 @@
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-image: url('/bg-ai-code.jpg'); /* Your new background */
+  background-size: cover; /* Covers full screen */
+  background-position: center; /* Centers it */
+  background-repeat: no-repeat; /* No tiling */
+  background-attachment: fixed; /* Stays in place on scroll */
   font-family: Arial, Helvetica, sans-serif;
 }

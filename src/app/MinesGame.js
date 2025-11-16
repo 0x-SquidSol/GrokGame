@@ -1,17 +1,17 @@
 'use client';
 
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, Transaction, Connection } from '@solana/web3.js';
-import { getAssociatedTokenAddress, createTransferCheckedInstruction } from '@solana/spl-token';
+import { PublicKey, Transaction } from '@solana/web3.js';
+import { getAssociatedTokenAddress, createTransferCheckedInstruction, getAccount } from '@solana/spl-token';
 import { useState } from 'react';
 
 const TOKEN_MINT = new PublicKey('2ZAm4d5FqtFjDpxbUgoksdTAXDnDmCHK2zP2yvxApump');
 const DECIMALS = 6;
-const BET = 25000;
-const PAYOUTS = [0, 1.5, 2.0, 3.0, 5.0, 10.0]; // 0-5 safe tiles
+const BET_AMOUNT = 25000n; // Use BigInt for precision
 const TREASURY_WALLET = new PublicKey('HYvDA63EK9N3G6hvvvz6PiAzMhmSCMB4LVDPW9QYBLWx');
+const PAYOUTS = [0, 1.5, 2.0, 3.0, 5.0, 10.0]; // 0-5 safe tiles
 
-export default function MinesGame() {
+export default function MinesGame({ onWin }) {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
   const [grid, setGrid] = useState(Array(25).fill('?'));
@@ -20,16 +20,29 @@ export default function MinesGame() {
   const [playing, setPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [result, setResult] = useState('');
+  const [balance, setBalance] = useState(0n);
+  const [loading, setLoading] = useState(false);
 
-  const rpcConnection = new Connection('https://solana-mainnet.rpc.extrnode.com/d0a0d1a9-566d-4757-b253-640db382b82e', 'confirmed');
+  // Fetch balance on mount/load
+  const updateBalance = async () => {
+    if (!publicKey) return;
+    try {
+      const ata = await getAssociatedTokenAddress(TOKEN_MINT, publicKey);
+      const account = await getAccount(connection, ata);
+      setBalance(BigInt(account.amount));
+    } catch {
+      setBalance(0n);
+    }
+  };
 
   const start = async () => {
-    console.log('Start button clicked – initiating tx');
     if (!publicKey) return alert('Connect wallet');
-    
+    if (balance < BET_AMOUNT) return alert(`Insufficient balance. Need ${BET_AMOUNT / BigInt(10 ** DECIMALS)} tokens.`);
+
+    setLoading(true);
     setResult('Preparing bet...');
     try {
-      console.log('Entering try block – preparing tx');
+      console.log('Preparing tx...');
       const userTokenAccount = await getAssociatedTokenAddress(TOKEN_MINT, publicKey);
       const treasuryTokenAccount = await getAssociatedTokenAddress(TOKEN_MINT, TREASURY_WALLET);
 
@@ -38,35 +51,54 @@ export default function MinesGame() {
         TOKEN_MINT,
         treasuryTokenAccount,
         publicKey,
-        BET * (10 ** DECIMALS),
+        BET_AMOUNT,
         DECIMALS
       );
 
       const tx = new Transaction().add(ix);
-      console.log('Sending transaction');
-      const sig = await sendTransaction(tx, rpcConnection);
-      await rpcConnection.confirmTransaction(sig, 'confirmed');
+      console.log('Sending tx...');
+      const sig = await sendTransaction(tx, connection); // Use shared connection!
+      console.log('Sig:', sig);
+
+      // Modern confirm (use shared connection)
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      await connection.confirmTransaction(
+        {
+          signature: sig,
+          blockhash,
+          lastValidBlockHeight,
+        },
+        'confirmed'
+      );
 
       setResult('Bet placed! Start picking tiles.');
-      setPlaying(true); setGameOver(false); setSafeCount(0);
+      setPlaying(true);
+      setGameOver(false);
+      setSafeCount(0);
       setGrid(Array(25).fill('?'));
-      
-      // Provably fair bombs using blockhash
-      const txInfo = await rpcConnection.getTransaction(sig, { commitment: 'confirmed' });
-      const hash = txInfo?.transaction.message.recentBlockhash || '';
-      console.log('Random Blockhash:', hash); // Fresh every play
+      await updateBalance(); // Refresh balance
+
+      // Provably fair: Use tx blockhash (via shared connection)
+      const txInfo = await connection.getTransaction(sig, {
+        commitment: 'confirmed',
+        maxSupportedTransactionVersion: 0,
+      });
+      const hash = txInfo?.transaction?.message?.recentBlockhash || '';
+      console.log('Blockhash for fair:', hash);
+
       const bombIndices = [];
       for (let i = 0; bombIndices.length < 3; i++) {
-        const index = parseInt(hash.slice(i*2, i*2+2), 16) % 25;
+        const index = parseInt(hash.slice(i * 2, (i * 2) + 2), 16) % 25;
         if (!bombIndices.includes(index)) bombIndices.push(index);
       }
       setBombs(bombIndices);
-      console.log('Bombs positions:', bombIndices); // Confirm different every play
+      console.log('Bombs:', bombIndices);
     } catch (e) {
-      console.log('Error in start:', e);
-      alert('Transaction failed: ' + e.message);
+      console.error('Tx error:', e);
+      alert(`Transaction failed: ${e.message || e.toString()}`);
       setResult('');
-      setPlaying(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -78,44 +110,74 @@ export default function MinesGame() {
       setGrid(newGrid);
       setGameOver(true);
       setPlaying(false);
-      setResult('🔴 BOMB! Lost.');
+      setResult('💥 BOMB! You lost.');
     } else {
       newGrid[i] = '💎';
       setGrid(newGrid);
       const newCount = safeCount + 1;
       setSafeCount(newCount);
-      setResult(`💎 Safe! ${newCount} gems - Potential win: ${(BET * PAYOUTS[newCount]).toLocaleString()} (${PAYOUTS[newCount]}x)`);
+      const payout = PAYOUTS[newCount];
+      setResult(`Safe! ${newCount}/5 gems - Potential: ${(BET_AMOUNT / BigInt(10 ** DECIMALS) * BigInt(payout * 10 ** DECIMALS)).toLocaleString()} (${payout}x)`);
       if (newCount === 5) {
         setGameOver(true);
         setPlaying(false);
-        const win = BET * PAYOUTS[newCount];
-        setResult(`🎉 MAX WIN! ${win.toLocaleString()} $GROKGAME`);
-        console.log('WINNER LOG:', {
-          username: localStorage.getItem('grok_username') || 'Anon',
-          publicKey: publicKey.toBase58(),
-          amount: win,
-          game: 'Mines',
-          timestamp: new Date().toISOString(),
-        });
+        const winAmount = (BET_AMOUNT * BigInt(payout * 10 ** DECimals)).toString();
+        setResult(`🎉 MAX WIN! ${winAmount} $GROKGAME`);
+        onWin?.(winAmount, 'Mines'); // Notify parent
       }
     }
   };
 
   return (
     <div className="text-center">
-      <h2 className="text-4xl font-bold text-white mb-4">MINES</h2>
-      <p className="text-xl text-green-400 mb-6">Find 5 gems → win up to 10x!</p>
-      {result && <p className="text-2xl mb-6 font-bold">{result}</p>}
-      <div className="grid grid-cols-5 gap-2 max-w-xs mx-auto mb-6">
+      <h1 className="text-3xl font-bold mb-4 text-green-400">MINES</h1>
+      <p className="mb-4 text-gray-300">Find 5 gems → win up to 10x!</p>
+      <p className="mb-4 text-sm text-gray-400">Balance: {(Number(balance) / 1e6).toLocaleString()}</p>
+      {result && <p className="mb-4 p-3 bg-black/50 rounded-lg text-lg">{result}</p>}
+      
+      {/* BET BUTTON */}
+      {!playing && !gameOver && (
+        <button
+          onClick={start}
+          disabled={loading || balance < BET_AMOUNT}
+          className="bg-gradient-to-r from-green-500 to-emerald-600 text-black font-bold py-4 px-8 rounded-full text-xl hover:scale-105 transition-all shadow-xl disabled:opacity-50"
+        >
+          {loading ? 'Preparing...' : `BET 25K`}
+        </button>
+      )}
+
+      {/* GRID */}
+      <div className="grid grid-cols-5 gap-2 mt-8 max-w-md mx-auto">
         {grid.map((cell, i) => (
-          <button key={i} onClick={() => pick(i)} disabled={!playing || gameOver} className="bg-gray-800 hover:bg-gray-700 disabled:opacity-50 w-12 h-12 text-2xl rounded font-bold">
+          <button
+            key={i}
+            onClick={() => pick(i)}
+            disabled={!playing || gameOver || cell !== '?'}
+            className={`w-16 h-16 text-2xl font-bold rounded-xl transition-all shadow-md ${
+              cell === '?'
+                ? 'bg-gradient-to-br from-gray-700 to-gray-800 hover:scale-110 cursor-pointer'
+                : cell === '💣'
+                ? 'bg-gradient-to-br from-red-600 to-red-800 scale-110'
+                : 'bg-gradient-to-br from-emerald-500 to-green-600 scale-110'
+            } ${!playing || gameOver || cell !== '?' ? 'cursor-not-allowed opacity-50' : ''}`}
+          >
             {cell}
           </button>
         ))}
       </div>
-      <button onClick={start} disabled={playing} className="bg-purple-600 hover:bg-purple-700 px-12 py-4 text-xl rounded font-bold">
-        BET 25K
-      </button>
+
+      {gameOver && (
+        <button
+          onClick={() => {
+            setResult('');
+            setGameOver(false);
+            updateBalance();
+          }}
+          className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition"
+        >
+          Play Again
+        </button>
+      )}
     </div>
   );
 }
