@@ -1,108 +1,144 @@
 'use client';
 
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, Transaction, Connection } from '@solana/web3.js';
-import { getAssociatedTokenAddress, createTransferCheckedInstruction } from '@solana/spl-token';
+import { PublicKey, Transaction } from '@solana/web3.js';
+import { getAssociatedTokenAddress, createTransferCheckedInstruction, getAccount } from '@solana/spl-token';
 import { useState } from 'react';
 
 const TOKEN_MINT = new PublicKey('2ZAm4d5FqtFjDpxbUgoksdTAXDnDmCHK2zP2yvxApump');
 const DECIMALS = 6;
-const COST_TO_PLAY = 25000; // 25,000 tokens
-const WIN_PAYOUT = 62500;   // 2.5x payout
-
-// YOUR TREASURY WALLET (replace with real address)
+const BET_AMOUNT = 25000n;
 const TREASURY_WALLET = new PublicKey('HYvDA63EK9N3G6hvvvz6PiAzMhmSCMB4LVDPW9QYBLWx');
+const PAYOUT = 3n; // 3x
 
-export default function DoorsGame() {
+export default function DoorsGame({ onWin }) {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const [doors, setDoors] = useState(['?', '?', '?']);
+  const [selected, setSelected] = useState(null);
   const [result, setResult] = useState('');
-  const [playing, setPlaying] = useState(false);
+  const [balance, setBalance] = useState(0n);
+  const [loading, setLoading] = useState(false);
 
-  const rpcConnection = new Connection('https://solana-mainnet.rpc.extrnode.com/d0a0d1a9-566d-4757-b253-640db382b82e', 'confirmed'); // Your new API key RPC – fixes all errors
-
-  const play = async (chosenDoor) => {
-    if (!publicKey) return alert('Connect wallet first');
-
-    setPlaying(true);
-    setResult('');
-
+  const updateBalance = async () => {
+    if (!publicKey) return;
     try {
-      const userTokenAccount = await getAssociatedTokenAddress(TOKEN_MINT, publicKey);
-      const treasuryTokenAccount = await getAssociatedTokenAddress(TOKEN_MINT, TREASURY_WALLET);
+      const ata = await getAssociatedTokenAddress(TOKEN_MINT, publicKey);
+      const account = await getAccount(connection, ata);
+      setBalance(BigInt(account.amount));
+    } catch (e) {
+      console.error('Balance fetch error:', e);
+      setBalance(0n);
+    }
+  };
+
+  const start = async () => {
+    if (!publicKey) return alert('Connect wallet');
+    await updateBalance();
+    if (balance < BET_AMOUNT) return alert(`Insufficient balance. Need ${Number(BET_AMOUNT) / 10**DECIMALS} tokens.`);
+
+    setLoading(true);
+    setResult('Preparing bet...');
+    try {
+      const userATA = await getAssociatedTokenAddress(TOKEN_MINT, publicKey);
+      const treasuryATA = await getAssociatedTokenAddress(TOKEN_MINT, TREASURY_WALLET);
 
       const ix = createTransferCheckedInstruction(
-        userTokenAccount,
+        userATA,
         TOKEN_MINT,
-        treasuryTokenAccount,
+        treasuryATA,
         publicKey,
-        COST_TO_PLAY * (10 ** DECIMALS),
+        BET_AMOUNT,
         DECIMALS
       );
 
       const tx = new Transaction().add(ix);
-      const sig = await sendTransaction(tx, rpcConnection);
-      await rpcConnection.confirmTransaction(sig, 'confirmed');
+      const { blockhash } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash; // Explicitly set for safety
 
-      // Provably fair: winning door from blockhash
-      const txInfo = await rpcConnection.getTransaction(sig, { commitment: 'confirmed' });
-      const hash = txInfo?.transaction.message.recentBlockhash || '';
-      const winningDoor = parseInt(hash.slice(-4), 16) % 3; // 0, 1, or 2
+      const sig = await sendTransaction(tx, connection);
+      console.log('Sig:', sig);
 
-      const won = winningDoor === chosenDoor;
+      // Modern confirm with timeout handling
+      await connection.confirmTransaction(
+        {
+          signature: sig,
+          blockhash,
+          lastValidBlockHeight: (await connection.getLatestBlockhash()).lastValidBlockHeight,
+        },
+        'confirmed'
+      );
 
-      if (won) {
-        setResult('🎰 JACKPOT! YOU WON 62,500 $GROKGAME! Airdropping in <10s');
-        console.log('WINNER LOG:', {
-          publicKey: publicKey.toBase58(),
-          amount: WIN_PAYOUT,
-          game: 'Doors',
-          timestamp: new Date().toISOString(),
-        });
-      } else {
-        setResult(`🚪 Wrong door! Winning door was ${winningDoor + 1}. Treasury eats.`);
-      }
+      setResult('Bet placed! Pick a door.');
+      setDoors(['?', '?', '?']);
+      setSelected(null);
+      await updateBalance();
+
+      // Provably fair: Use blockhash
+      const winningDoor = parseInt(blockhash.slice(-2), 16) % 3;
+      console.log('Winning door (hidden):', winningDoor);
+      return winningDoor; // Return for pick logic
     } catch (e) {
-      alert('Transaction failed: ' + e.message);
+      console.error('Tx error:', e);
+      alert(`Failed: ${e.message || e.toString()}. Check Explorer for sig ${sig || 'none'}.`);
+      setResult('');
+    } finally {
+      setLoading(false);
     }
-    setPlaying(false);
+  };
+
+  const pick = async (i) => {
+    if (loading || selected !== null) return;
+    const winningDoor = await start(); // Start bet on pick
+    if (winningDoor === undefined) return; // Failed bet
+
+    const newDoors = doors.map((d, idx) => (idx === winningDoor ? '🏆' : '💣'));
+    setDoors(newDoors);
+    setSelected(i);
+
+    if (i === winningDoor) {
+      const winAmount = (BET_AMOUNT * PAYOUT).toString();
+      setResult(`WIN! ${winAmount} $GROKGAME`);
+      onWin?.(winAmount, 'Doors');
+    } else {
+      setResult('LOSE! Try again.');
+    }
   };
 
   return (
     <div className="text-center">
-      <h2 className="text-4xl font-bold text-white mb-2">Pick a Door</h2>
-      <p className="text-2xl text-green-400 font-black mb-8">
-        Cost: 25,000 $GROKGAME → Win 62,500 (2.5x)
-      </p>
-      {result && <p className="text-3xl mb-8 font-bold">{result}</p>}
-      
-      <div className="flex justify-center gap-6 md:gap-12">
-        <button 
-          onClick={() => play(0)} 
-          disabled={playing}
-          className="bg-gradient-to-b from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 disabled:opacity-50 w-32 h-48 md:w-48 md:h-64 text-6xl rounded-3xl shadow-2xl transform hover:scale-105 transition-all font-black border-8 border-yellow-800"
-        >
-          🚪1
-        </button>
-        <button 
-          onClick={() => play(1)} 
-          disabled={playing}
-          className="bg-gradient-to-b from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 disabled:opacity-50 w-32 h-48 md:w-48 md:h-64 text-6xl rounded-3xl shadow-2xl transform hover:scale-105 transition-all font-black border-8 border-yellow-800"
-        >
-          🚪2
-        </button>
-        <button 
-          onClick={() => play(2)} 
-          disabled={playing}
-          className="bg-gradient-to-b from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 disabled:opacity-50 w-32 h-48 md:w-48 md:h-64 text-6xl rounded-3xl shadow-2xl transform hover:scale-105 transition-all font-black border-8 border-yellow-800"
-        >
-          🚪3
-        </button>
+      <h1 className="text-3xl font-bold mb-4 text-green-400">DOORS</h1>
+      <p className="mb-4 text-gray-300">Pick a door → 1 in 3 chance for 3x!</p>
+      <p className="mb-4 text-sm text-gray-400">Balance: {(Number(balance) / 1e6).toLocaleString()}</p>
+      {result && <p className="mb-4 p-3 bg-black/50 rounded-lg text-lg">{result}</p>}
+
+      <div className="flex justify-center gap-4 mt-8">
+        {doors.map((door, i) => (
+          <button
+            key={i}
+            onClick={() => pick(i)}
+            disabled={loading || selected !== null}
+            className={`w-32 h-48 text-4xl font-bold rounded-xl transition-all shadow-md ${
+              selected === i
+                ? door === '🏆'
+                  ? 'bg-gradient-to-br from-green-500 to-emerald-600 scale-110'
+                  : 'bg-gradient-to-br from-red-600 to-red-800 scale-110'
+                : 'bg-gradient-to-br from-gray-700 to-gray-800 hover:scale-110 cursor-pointer'
+            } flex items-center justify-center`}
+          >
+            {selected !== null ? door : door}
+          </button>
+        ))}
       </div>
-      
-      <p className="mt-8 text-gray-400 text-sm">
-        1 in 3 chance → 16.67% house edge funds daily prizes + marketing
-      </p>
+
+      {selected !== null && (
+        <button
+          onClick={() => setSelected(null)}
+          className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition"
+        >
+          Play Again
+        </button>
+      )}
     </div>
   );
 }

@@ -28,9 +28,17 @@ export default function MinesGame({ onWin }) {
     if (!publicKey) return;
     try {
       const ata = await getAssociatedTokenAddress(TOKEN_MINT, publicKey);
-      const account = await getAccount(connection, ata);
-      setBalance(BigInt(account.amount));
-    } catch {
+      try {
+        const account = await getAccount(connection, ata);
+        setBalance(BigInt(account.amount));
+      } catch (e) {
+        if (e.name === 'TokenAccountNotFoundError') {
+          setBalance(0n);
+          alert('Create ATA for $GROKGAME in your wallet first.');
+        } else throw e;
+      }
+    } catch (e) {
+      console.error('Balance fetch error:', e);
       setBalance(0n);
     }
   };
@@ -75,7 +83,6 @@ export default function MinesGame({ onWin }) {
       setPlaying(true);
       setGameOver(false);
       setSafeCount(0);
-      setGrid(Array(25).fill('?'));
       await updateBalance(); // Refresh balance
 
       // Provably fair: Use tx blockhash (via shared connection)
@@ -121,7 +128,7 @@ export default function MinesGame({ onWin }) {
       if (newCount === 5) {
         setGameOver(true);
         setPlaying(false);
-        const winAmount = (BET_AMOUNT * BigInt(payout * 10 ** DECimals)).toString();
+        const winAmount = (BET_AMOUNT * BigInt(payout * 10 ** DECIMALS)).toString();
         setResult(`🎉 MAX WIN! ${winAmount} $GROKGAME`);
         onWin?.(winAmount, 'Mines'); // Notify parent
       }
