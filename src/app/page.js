@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'; // Forces dynamic render – fixes hydra
 import Image from 'next/image';
 import DoorsGame from './DoorsGame';
 import MinesGame from './MinesGame';
-import { useConnection, useWallet } from { PhantomWalletAdapter, SolflareWalletAdapter };
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useEffect, useState } from 'react';
 
 const PUMP_FUN_LINK = 'https://pump.fun/2ZAm4d5FqtFjDpxbUgoksdTAXDnDmCHK2zP2yvxApump';
@@ -49,9 +49,9 @@ export default function Home() {
       <button onClick={() => window.open(PUMP_FUN_LINK, '_blank')} className="mt-6 bg-gradient-to-r from-green-400 to-cyan-400 text-black font-bold py-3 px-8 rounded-full text-xl hover:scale-105 transition">
         BUY $GROKGAME
       </button>
-<button onClick={() => window.open('https://x.com/Grok_Game_Sol', '_blank')} className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-300 hover:to-blue-500 text-white font-bold py-4 px-8 rounded-full mb-8 text-2xl shadow-lg transform hover:scale-105 transition-all ml-4">
-  X
-</button>
+      <button onClick={() => window.open('https://x.com/Grok_Game_Sol', '_blank')} className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-300 hover:to-blue-500 text-white font-bold py-4 px-8 rounded-full mb-8 text-2xl shadow-lg transform hover:scale-105 transition-all ml-4">
+        X
+      </button>
 
       {/* Game Tabs */}
       <div className="flex justify-center gap-4 mt-8">

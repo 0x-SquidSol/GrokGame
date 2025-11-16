@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "src/app/page.js", "src/app/layout.js", "src/app/MinesGame.js", "src/app/DoorsGame.js", "src/app/layout.js", "src/app/page.js"  ],
   "exclude": ["node_modules"]
 }
