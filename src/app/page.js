@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'; // Forces dynamic render – fixes hydra
 import Image from 'next/image';
 import DoorsGame from './DoorsGame';
 import MinesGame from './MinesGame';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet } from { PhantomWalletAdapter, SolflareWalletAdapter };
 import { useEffect, useState } from 'react';
 
 const PUMP_FUN_LINK = 'https://pump.fun/2ZAm4d5FqtFjDpxbUgoksdTAXDnDmCHK2zP2yvxApump';
