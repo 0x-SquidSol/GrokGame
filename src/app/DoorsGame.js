@@ -91,8 +91,8 @@ export default function DoorsGame({ onWin }) {
 
     setSelected(i);
 
-    // Reveal all doors with proper emojis
-    const revealed = [0, 1, 2].map(idx => idx === winningDoor ? 'Trophy' : 'Bomb');
+    // Reveal all doors with proper emojis (ensures one winner always)
+    const revealed = [0, 1, 2].map(idx => idx === winningDoor ? '🏆' : '💣');
     setDoors(revealed);
 
     if (i === winningDoor) {
@@ -146,17 +146,17 @@ export default function DoorsGame({ onWin }) {
             className={`relative w-36 h-64 rounded-3xl transition-all duration-500 shadow-2xl border-4 border-zinc-800
               ${selected === null 
                 ? 'bg-gradient-to-b from-gray-800 to-gray-900 hover:scale-105 cursor-pointer' 
-                : selected === i && doors[i] === 'Trophy'
+                : selected === i && doors[i] === '🏆'
                   ? 'bg-gradient-to-b from-yellow-400 to-amber-600 scale-125 animate-pulse'
-                  : selected === i && doors[i] === 'Bomb'
+                  : selected === i && doors[i] === '💣'
                     ? 'bg-gradient-to-b from-red-600 to-red-900 scale-125'
-                    : doors[i] === 'Trophy'
+                    : doors[i] === '🏆'
                       ? 'bg-gradient-to-b from-emerald-500 to-green-600'
                       : 'bg-gradient-to-b from-gray-700 to-gray-800'
               }`}
           >
-            <div className="absolute inset-0 flex items-center justify-center text-8xl">
-              {selected === null ? '?' : doors[i] === 'Trophy' ? 'Trophy' : 'Bomb'}
+            <div className="absolute inset-0 flex items-center justify-center text-6xl"> {/* Reduced from text-8xl to text-6xl to prevent overlap */}
+              {selected === null ? '?' : doors[i]}
             </div>
           </button>
         ))}
