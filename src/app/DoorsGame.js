@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react';
 
 const TOKEN_MINT = new PublicKey('2ZAm4d5FqtFjDpxbUgoksdTAXDnDmCHK2zP2yvxApump');
 const DECIMALS = 6;
-const BET_AMOUNT = 25000n;
+const BET_AMOUNT = 25_000_000_000n; // 25,000 tokens
 const TREASURY_WALLET = new PublicKey('HYvDA63EK9N3G6hvvvz6PiAzMhmSCMB4LVDPW9QYBLWx');
 const PAYOUT = 3n; // 3x win
 
@@ -87,10 +87,14 @@ export default function DoorsGame({ onWin }) {
       const sig = await sendTransaction(tx, connection);
       console.log('Transaction signature:', sig);
 
-      await connection.confirmTransaction(
-        { signature: sig, blockhash, lastValidBlockHeight: lastBlockHeight },
-        'confirmed'
-      );
+    await connection.confirmTransaction(
+  {
+    signature: sig,
+    blockhash,
+    lastValidBlockHeight,   // ← this variable comes from getLatestBlockhash()
+  },
+  'confirmed'
+);
 
       setResult('Bet placed! Pick a door.');
       setDoors(['?', '?', '?']);
