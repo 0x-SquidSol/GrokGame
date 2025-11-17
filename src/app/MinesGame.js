@@ -10,7 +10,7 @@ import {
 } from '@solana/spl-token';
 import { useState, useEffect } from 'react';
 
-const TOKEN_MINT = new PublicKey('2ZAm4d5FqtFjDpxbUgoksdTAXDnDmCHK2zP2yvxApump');
+const TOKEN_MINT = new PublicKey('5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump');
 const DECIMALS = 6;
 const BET_AMOUNT = 25_000_000_000n;
 const TREASURY_WALLET = new PublicKey('HYvDA63EK9N3G6hvvvz6PiAzMhmSCMB4LVDPW9QYBLWx');

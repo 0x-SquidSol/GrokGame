@@ -1,12 +1,12 @@
 'use client';
-export const dynamic = 'force-dynamic'; // Forces dynamic render – fixes hydration
+export const dynamic = 'force-dynamic';
 import Image from 'next/image';
 import DoorsGame from './DoorsGame';
 import MinesGame from './MinesGame';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useEffect, useState } from 'react';
 
-const PUMP_FUN_LINK = 'https://pump.fun/2ZAm4d5FqtFjDpxbUgoksdTAXDnDmCHK2zP2yvxApump';
+const PUMP_FUN_LINK = 'https://pump.fun/coin/5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump';
 
 export default function Home() {
   const { publicKey } = useWallet();
@@ -55,7 +55,7 @@ export default function Home() {
       <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 text-center">
         $GROKGAME
       </h1>
-      <p className="text-lg md:text-2xl text-gray-300 mt-4 text-center">
+      <p className="text-lg md:text-2xl Sancho gray-300 mt-4 text-center">
         Real games. Real wins. Real utility.
       </p>
 
