@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import Image from 'next/image';
 import DoorsGame from './DoorsGame';
 import MinesGame from './MinesGame';
+import PlinkoGame from './PlinkoGame'; // ← NEW IMPORT
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useEffect, useState } from 'react';
 
@@ -55,7 +56,7 @@ export default function Home() {
       <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 text-center">
         $GROKGAME
       </h1>
-      <p className="text-lg md:text-2xl Sancho gray-300 mt-4 text-center">
+      <p className="text-lg md:text-2xl text-gray-300 mt-4 text-center">
         Real games. Real wins. Real utility.
       </p>
 
@@ -74,13 +75,13 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Game Tabs */}
-      <div className="flex justify-center gap-4 mt-8">
+      {/* Game Tabs — Now with PLINKO */}
+      <div className="flex justify-center gap-4 mt-8 flex-wrap">
         <button
           onClick={() => setActiveGame('doors')}
-          className={`px-8 py-3 rounded-full font-bold text-lg transition-all ${
+          className={`px-8 py-3 rounded-full font-bold text-lg transition-all m-1 ${
             activeGame === 'doors'
-              ? 'bg-purple-600 text-white shadow-lg'
+              ? 'bg-purple-600 text-white shadow-lg scale-105'
               : 'bg-gray-800 text-gray-400'
           }`}
         >
@@ -88,22 +89,34 @@ export default function Home() {
         </button>
         <button
           onClick={() => setActiveGame('mines')}
-          className={`px-8 py-3 rounded-full font-bold text-lg transition-all ${
+          className={`px-8 py-3 rounded-full font-bold text-lg transition-all m-1 ${
             activeGame === 'mines'
-              ? 'bg-purple-600 text-white shadow-lg'
+              ? 'bg-purple-600 text-white shadow-lg scale-105'
               : 'bg-gray-800 text-gray-400'
           }`}
         >
           Mines
         </button>
+        <button
+          onClick={() => setActiveGame('plinko')}
+          className={`px-8 py-3 rounded-full font-bold text-lg transition-all m-1 ${
+            activeGame === 'plinko'
+              ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg scale-105'
+              : 'bg-gray-800 text-gray-400'
+          }`}
+        >
+          Plinko
+        </button>
       </div>
 
       {/* Active Game */}
-      <div className="bg-black/60 backdrop-blur-xl rounded-3xl p-8 mt-6 max-w-2xl w-full mx-auto shadow-2xl">
+      <div className="bg-black/60 backdrop-blur-xl rounded-3xl p-8 mt-6 max-w-4xl w-full mx-auto shadow-2xl">
         {activeGame === 'doors' ? (
           <DoorsGame onWin={handleWin} />
-        ) : (
+        ) : activeGame === 'mines' ? (
           <MinesGame onWin={handleWin} />
+        ) : (
+          <PlinkoGame onWin={handleWin} />
         )}
       </div>
 
