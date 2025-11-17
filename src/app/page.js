@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import Image from 'next/image';
 import DoorsGame from './DoorsGame';
 import MinesGame from './MinesGame';
-import PlinkoGame from './PlinkoGame'; // ← NEW IMPORT
+import PlinkoGame from './PlinkoGame';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useEffect, useState } from 'react';
 
@@ -14,11 +14,11 @@ export default function Home() {
   const [activeGame, setActiveGame] = useState('doors');
   const [username, setUsername] = useState('');
   const [wins, setWins] = useState([]);
-  const [leaderboard] = useState([
+  const leaderboard = [
     { name: 'SquidKing', win: '312,500' },
     { name: 'GrokGod', win: '250,000' },
     { name: 'Anon420', win: '187,500' },
-  ]);
+  ];
 
   useEffect(() => {
     if (publicKey && !username) {
@@ -34,9 +34,28 @@ export default function Home() {
     }
   }, [publicKey]);
 
-  const handleWin = (amount, game) => {
-    const win = { name: username || publicKey.toBase58().slice(0, 6), amount, game };
+  const handleWin = async (amount, game) => {
+    const win = { name: username || publicKey?.toBase58().slice(0, 6) || 'Anon', amount, game };
     setWins([win, ...wins.slice(0, 4)]);
+
+    // Server-side persistent logging for manual airdrops
+    if (publicKey) {
+      try {
+        await fetch('/api/log-win', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            publicKey: publicKey.toBase58(),
+            username: username || 'Anonymous',
+            amount,
+            game,
+            timestamp: new Date().toISOString(),
+          }),
+        });
+      } catch (err) {
+        console.error('Failed to save win log:', err);
+      }
+    }
   };
 
   const shareWin = (win) => {
