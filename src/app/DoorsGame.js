@@ -6,26 +6,27 @@ import {
   getAssociatedTokenAddress,
   createTransferCheckedInstruction,
   getAccount,
-  createAssociatedTokenAccountInstruction,   // ← added
+  createAssociatedTokenAccountInstruction,
 } from '@solana/spl-token';
 import { useState, useEffect } from 'react';
 
 const TOKEN_MINT = new PublicKey('2ZAm4d5FqtFjDpxbUgoksdTAXDnDmCHK2zP2yvxApump');
 const DECIMALS = 6;
-const BET_AMOUNT = 25_000_000_000n; // 25,000 tokens
+const BET_AMOUNT = 25_000_000_000n;
 const TREASURY_WALLET = new PublicKey('HYvDA63EK9N3G6hvvvz6PiAzMhmSCMB4LVDPW9QYBLWx');
-const PAYOUT = 3n; // 3x win
+const PAYOUT = 3n;
 
 export default function DoorsGame({ onWin }) {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+
   const [doors, setDoors] = useState(['?', '?', '?']);
+  const [winningDoor, setWinningDoor] = useState(null); // ← NEW: store once
   const [selected, setSelected] = useState(null);
   const [result, setResult] = useState('');
   const [balance, setBalance] = useState(0n);
   const [loading, setLoading] = useState(false);
 
-  // Auto-update balance when wallet changes
   useEffect(() => {
     updateBalance();
   }, [publicKey]);
@@ -36,16 +37,17 @@ export default function DoorsGame({ onWin }) {
       const ata = await getAssociatedTokenAddress(TOKEN_MINT, publicKey);
       const account = await getAccount(connection, ata);
       setBalance(BigInt(account.amount));
-    } catch (e) {
-      setBalance(0n); // ATA doesn't exist yet → balance 0 is expected
+    } catch {
+      setBalance(0n);
     }
   };
 
   const start = async () => {
     if (!publicKey) return alert('Connect wallet');
+    if (balance < BET_AMOUNT) return alert('Not enough tokens');
 
     setLoading(true);
-    setResult('Preparing bet...');
+    setResult('Placing bet...');
 
     try {
       const userATA = await getAssociatedTokenAddress(TOKEN_MINT, publicKey);
@@ -53,117 +55,119 @@ export default function DoorsGame({ onWin }) {
 
       const tx = new Transaction();
 
-      // Auto-create player ATA if missing
       try {
         await getAccount(connection, userATA);
-      } catch (e) {
-        tx.add(
-          createAssociatedTokenAccountInstruction(
-            publicKey,     // payer
-            userATA,       // ATA to create
-            publicKey,     // owner
-            TOKEN_MINT
-          )
-        );
+      } catch {
+        tx.add(createAssociatedTokenAccountInstruction(publicKey, userATA, publicKey, TOKEN_MINT));
       }
 
-      // Add the bet transfer
-      tx.add(
-        createTransferCheckedInstruction(
-          userATA,
-          TOKEN_MINT,
-          treasuryATA,
-          publicKey,
-          BET_AMOUNT,
-          DECIMALS
-        )
-      );
+      tx.add(createTransferCheckedInstruction(
+        userATA,
+        TOKEN_MINT,
+        treasuryATA,
+        publicKey,
+        BET_AMOUNT,
+        DECIMALS
+      ));
 
-      // Send transaction
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
       tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
 
       const sig = await sendTransaction(tx, connection);
-      console.log('Transaction signature:', sig);
+      await connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, 'confirmed');
 
-    await connection.confirmTransaction(
-  {
-    signature: sig,
-    blockhash,
-    lastValidBlockHeight,   // ← this variable comes from getLatestBlockhash()
-  },
-  'confirmed'
-);
-
-      setResult('Bet placed! Pick a door.');
-      setDoors(['?', '?', '?']);
-      setSelected(null);
-      await updateBalance();
-
-      // Provably fair winning door
+      // ONE TIME ONLY: Determine winning door from this transaction
       const txInfo = await connection.getTransaction(sig, { commitment: 'confirmed', maxSupportedTransactionVersion: 0 });
       const hash = txInfo?.transaction?.message?.recentBlockhash || '';
-      const winningDoor = parseInt(hash.slice(-2), 16) % 3;
-      console.log('Winning door (hidden):', winningDoor);
-      return winningDoor;
+      const winner = parseInt(hash.slice(-2), 16) % 3;
+
+      setWinningDoor(winner);           // ← Store it once
+      setDoors(['?', '?', '?']);
+      setSelected(null);
+      setResult('Bet placed! Pick a door.');
+      await updateBalance();
+
     } catch (e) {
-      console.error('Transaction error:', e);
-      alert(`Transaction failed: ${e.message || e}`);
+      console.error(e);
+      alert('Transaction failed: ' + (e.message || e));
       setResult('');
     } finally {
       setLoading(false);
     }
   };
 
-  const pick = async (i) => {
-    if (loading || selected !== null) return;
-    const winningDoor = await start();
-    if (winningDoor === undefined) return;
+  const pick = (i) => {
+    if (loading || selected !== null || winningDoor === null) return;
 
-    const newDoors = doors.map((d, idx) => (idx === winningDoor ? '🏆' : '💣'));
-    setDoors(newDoors);
     setSelected(i);
+
+    // Reveal all doors correctly
+    const revealed = doors.map((_, idx) => 
+      idx === winningDoor ? 'Trophy' : 'Bomb'
+    );
+    setDoors(revealed);
 
     if (i === winningDoor) {
       const winAmount = (BET_AMOUNT * PAYOUT).toString();
-      setResult(`WIN! ${winAmount} $GROKGAME`);
+      setResult(`WIN! +${Number(winAmount)/1e6} $GROKGAME`);
       onWin?.(winAmount, 'Doors');
     } else {
       setResult('LOSE! Try again.');
     }
   };
 
+  const reset = () => {
+    setDoors(['?', '?', '?']);
+    setSelected(null);
+    setWinningDoor(null);
+    setResult('');
+  };
+
   return (
     <div className="text-center">
       <h1 className="text-3xl font-bold mb-4 text-green-400">DOORS</h1>
       <p className="mb-4 text-gray-300">Pick a door → 1 in 3 chance for 3x!</p>
-      <p className="mb-4 text-sm text-gray-400">Balance: {(Number(balance) / 1e6).toLocaleString()}</p>
-      {result && <p className="mb-4 p-3 bg-black/50 rounded-lg text-lg">{result}</p>}
+      <p className="mb-4 text-sm text-gray-400">
+        Balance: {(Number(balance) / 1e6).toLocaleString()} $GROKGAME
+      </p>
 
-      <div className="flex justify-center gap-4 mt-8">
+      {result && <p className="mb-6 p-4 bg-black/70 rounded-xl text-xl font-bold">{result}</p>}
+
+      {/* BET BUTTON */}
+      {winningDoor === null && (
+        <button
+          onClick={start}
+          disabled={loading}
+          className="bg-gradient-to-r from-green-500 to-emerald-600 text-black font-bold py-4 px-12 rounded-full text-2xl hover:scale-105 transition-all shadow-2xl disabled:opacity-50"
+        >
+          {loading ? 'Placing bet...' : 'BET 25K'}
+        </button>
+      )}
+
+      <div className="flex justify-center gap-8 mt-10">
         {doors.map((door, i) => (
           <button
             key={i}
             onClick={() => pick(i)}
-            disabled={loading || selected !== null}
-            className={`w-32 h-48 text-4xl font-bold rounded-xl transition-all shadow-md flex items-center justify-center ${
-              selected === i
-                ? door === '🏆'
-                  ? 'bg-gradient-to-br from-green-500 to-emerald-600 scale-110'
-                  : 'bg-gradient-to-br from-red-600 to-red-800 scale-110'
-                : 'bg-gradient-to-br from-gray-700 to-gray-800 hover:scale-110 cursor-pointer'
-            }`}
+            disabled={loading || selected !== null || winningDoor === null}
+            className={`w-32 h-48 rounded-2xl text-6xl font-bold transition-all shadow-2xl border-4 border-zinc-700
+              ${selected === null ? 'bg-gradient-to-br from-gray-800 to-gray-900 hover:scale-110 cursor-pointer' : ''}
+              ${selected === i && door === 'Trophy' ? 'bg-gradient-to-br from-yellow-400 to-amber-600 scale-125 animate-pulse' : ''}
+              ${selected === i && door === 'Bomb' ? 'bg-gradient-to-br from-red-600 to-red-900 scale-125' : ''}
+              ${selected !== null && selected !== i && door === 'Trophy' ? 'bg-gradient-to-br from-emerald-500 to-green-600' : ''}
+              ${selected !== null && selected !== i && door === 'Bomb' ? 'bg-gray-700' : ''}
+            `}
           >
-            {selected !== null ? door : door}
+            {selected !== null ? door : '?'}
           </button>
         ))}
       </div>
 
       {selected !== null && (
         <button
-          onClick={() => setSelected(null)}
-          className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition"
+          onClick={reset}
+          className="mt-8 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-10 rounded-full text-xl transition"
         >
           Play Again
         </button>
