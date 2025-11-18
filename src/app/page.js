@@ -11,12 +11,13 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useEffect, useState } from 'react';
 import { clusterApiUrl } from '@solana/web3.js';
 
-// Wallet Adapter Imports
+// ── Wallet Adapter Imports ──────────────────────
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { registerMwa, createDefaultAuthorizationCache, createDefaultChainSelector, createDefaultWalletNotFoundHandler } from '@solana-mobile/wallet-standard-mobile';
 import '@solana/wallet-adapter-react-ui/styles.css';
+// ──────────────────────────────────────────────────
 
 const PUMP_FUN_LINK = 'https://pump.fun/coin/5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump';
 
@@ -264,9 +265,26 @@ export default function Home() {
               )}
               {activeSection === 'howToBuy' && (
                 <div>
-                  <h2 className="text-3xl font-bold text-white mb-4">How to Buy</h2>
+                  <h2 className="text-3xl font-bold text-white mb-4">How to Buy $GROKGAME</h2>
                   <p className="text-gray-300 text-lg leading-relaxed">
-                    Coming soon – stay tuned for our how-to-buy guide!
+                    Ready to join the $GROKGAME revolution? Buying is quick and easy through PumpFun on the Solana blockchain. Follow these simple steps to get started:
+                    <br /><br />
+                    1. <strong>Set Up a Solana Wallet</strong>: If you don't have one, download a Solana-compatible wallet like Phantom, Solflare, or Backpack from their official websites or app stores. Create a new wallet or import an existing one, and fund it with SOL (Solana's native token). You can buy SOL on exchanges like Binance, Coinbase, or directly in your wallet via credit card.
+                    <br />
+                    2. <strong>Visit PumpFun</strong>: Go to the official PumpFun website at <a href="https://pump.fun" className="text-cyan-400 underline hover:text-cyan-300">pump.fun</a>. Connect your Solana wallet by clicking "Connect Wallet" in the top right corner.
+                    <br />
+                    3. <strong>Search for $GROKGAME</strong>: In the search bar, enter the token contract address: <code>5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump</code>. This will take you to the $GROKGAME page.
+                    <br />
+                    4. <strong>Swap SOL for $GROKGAME</strong>: Enter the amount of SOL you want to swap. Review the transaction details (including any network fees), then confirm the swap in your wallet. Your $GROKGAME tokens will appear in your wallet shortly after.
+                    <br />
+                    5. <strong>Verify Your Purchase</strong>: Check your wallet balance to confirm the $GROKGAME tokens have arrived. You're now a holder!
+                    <br /><br />
+                    <strong>Important Notes</strong>:
+                    - Always use the official PumpFun site and double-check the contract address to avoid scams.
+                    - Solana transactions are fast and cheap, but gas fees can vary based on network congestion.
+                    - For security, enable two-factor authentication on your wallet and never share your seed phrase.
+                    <br /><br />
+                    As a $GROKGAME holder, you're getting in early on pre-utility supply – meaning your tokens have massive potential as we roll out features. Use them to gamble in our variety of mini-games like Doors, Mines, and Plinko for real wins. Soon, you'll be able to stake for passive rewards and gamble in even more ways, like PVP battles and sports betting. Plus, all holders are eligible for random treasury airdrops as a thank-you for your support. Hold tight and watch the utility grow! 🚀
                   </p>
                 </div>
               )}
