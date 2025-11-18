@@ -37,7 +37,8 @@ export default function DoorsGame({ onWin }) {
       const ata = await getAssociatedTokenAddress(TOKEN_MINT, publicKey);
       const account = await getAccount(connection, ata);
       setBalance(BigInt(account.amount));
-    } catch {
+    } catch (e) {
+      console.error('Balance fetch failed:', e.message); // Logging for debug
       setBalance(0n);
     }
   };
@@ -66,11 +67,17 @@ export default function DoorsGame({ onWin }) {
       tx.feePayer = publicKey;
 
       const sig = await sendTransaction(tx, connection);
-      await connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, 'confirmed');
+      await connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, 'finalized'); // Changed to 'finalized' for reliability
 
-      const txInfo = await connection.getTransaction(sig, { commitment: 'confirmed', maxSupportedTransactionVersion: 0 });
-      const hash = txInfo?.transaction?.message?.recentBlockhash || '';
-      const winner = parseInt(hash.slice(-2), 16) % 3;
+      const txInfo = await connection.getTransaction(sig, { commitment: 'finalized', maxSupportedTransactionVersion: 0 });
+      console.log('txInfo:', txInfo); // Debug: Check if this is null on Vercel
+      let hash = txInfo?.transaction?.message?.recentBlockhash || '';
+      let winner = parseInt(hash.slice(-2), 16) % 3;
+
+      if (isNaN(winner)) { // Fallback if blockhash fails (e.g., txInfo null)
+        console.warn('Blockhash failed - using fallback randomness');
+        winner = Math.floor(Math.random() * 3);
+      }
 
       setWinningDoor(winner);
       setDoors(['?', '?', '?']);
@@ -155,7 +162,7 @@ export default function DoorsGame({ onWin }) {
                       : 'bg-gradient-to-b from-gray-700 to-gray-800'
               }`}
           >
-            <div className="absolute inset-0 flex items-center justify-center text-6xl"> {/* Reduced from text-8xl to text-6xl to prevent overlap */}
+            <div className="absolute inset-0 flex items-center justify-center text-5xl"> {/* Further reduced to text-5xl to ensure no overlap */}
               {selected === null ? '?' : doors[i]}
             </div>
           </button>
