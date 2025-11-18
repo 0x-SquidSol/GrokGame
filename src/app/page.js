@@ -1,4 +1,4 @@
-// app/page.tsx
+// app/page.tsx – FINAL VERSION (logo + BUY button moved noticeably left inside banner, perfect balance)
 
 'use client';
 export const dynamic = 'force-dynamic';
@@ -15,6 +15,7 @@ import { clusterApiUrl } from '@solana/web3.js';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { registerMwa, createDefaultAuthorizationCache, createDefaultChainSelector, createDefaultWalletNotFoundHandler } from '@solana-mobile/wallet-standard-mobile';
 import '@solana/wallet-adapter-react-ui/styles.css';
 // ──────────────────────────────────────────────────
 
@@ -22,20 +23,9 @@ const PUMP_FUN_LINK = 'https://pump.fun/coin/5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefd
 
 const endpoint = process.env.NEXT_PUBLIC_HELIUS_RPC || clusterApiUrl('mainnet-beta');
 
-// Dynamic import for MobileWalletAdapter to avoid SSR build error in Turbopack
-const MobileWalletAdapter = typeof window !== 'undefined' ? (await import('@solana-mobile/wallet-adapter-mobile')).MobileWalletAdapter : null;
-
 const wallets = [
   new PhantomWalletAdapter(),
   new SolflareWalletAdapter(),
-  ...(MobileWalletAdapter ? [new MobileWalletAdapter({
-    appIdentity: {
-      name: 'GROKGAME',
-      uri: window.location.origin,
-      icon: '/logo.png',
-    },
-    cluster: 'mainnet-beta',
-  })] : []),
 ];
 
 export default function Home() {
@@ -43,11 +33,27 @@ export default function Home() {
   const [activeGame, setActiveGame] = useState('doors');
   const [username, setUsername] = useState('');
   const [wins, setWins] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
+  const [activeSection, setActiveSection] = useState(null); // State for active section
+
   const leaderboard = [
     { name: 'SquidKing', win: '312,500' },
     { name: 'GrokGod', win: '250,000' },
     { name: 'Anon420', win: '187,500' },
   ];
+
+  useEffect(() => {
+    registerMwa({
+      appIdentity: {
+        name: 'GROKGAME',
+        uri: typeof window !== 'undefined' ? window.location.origin : 'https://grok-game-gamma.vercel.app',
+        icon: '/logo.png',
+      },
+      authorizationCache: createDefaultAuthorizationCache(),
+      chainSelector: createDefaultChainSelector(),
+      onWalletNotFound: createDefaultWalletNotFoundHandler(),
+    });
+  }, []);
 
   useEffect(() => {
     if (publicKey && !username) {
@@ -91,75 +97,179 @@ export default function Home() {
     window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}`);
   };
 
+  const toggleSection = (section) => {
+    setActiveSection(activeSection === section ? null : section);
+    setShowDropdown(false); // Close dropdown after selection
+  };
+
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          {/* Connect Button – Top Right */}
+          {/* Wallet button fixed top-right */}
           <div className="fixed top-4 right-4 z-50">
             <WalletMultiButton style={{ height: '56px', borderRadius: '999px', fontSize: '18px' }} />
           </div>
 
-          <main className="min-h-screen bg-gradient-to-b from-purple-900/50 via-black/50 to-black/50 p-4 md:p-8">
-            <Image
-              src="/logo.png"
-              alt="$GROKGAME"
-              width={180}
-              height={180}
-              className="rounded-full mb-6 shadow-2xl mx-auto"
-            />
-            <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 text-center">
-              $GROKGAME
-            </h1>
-            <p className="text-lg md:text-2xl text-gray-300 mt-4 text-center">
-              Real games. Real wins. Real utility.
-            </p>
+          {/* BANNER – Logo + BUY button now moved significantly left (perfect balance, no overlap) */}
+          <header className="sticky top-0 z-40 bg-black py-10 border-8 border-purple-600 shadow-2xl shadow-purple-600/60 overflow-hidden">
+            {/* Full glowing border pop */}
+            <div className="absolute inset-0 pointer-events-none shadow-[0_0_80px_#c084fc] opacity-60"></div>
+            <div className="absolute inset-0 pointer-events-none shadow-[0_0_40px_#ec4899] opacity-40"></div>
 
-            <div className="flex justify-center gap-4 mt-6">
-              <button
-                onClick={() => window.open(PUMP_FUN_LINK, '_blank')}
-                className="bg-gradient-to-r from-green-400 to-cyan-400 text-black font-bold py-3 px-8 rounded-full text-xl hover:scale-105 transition shadow-lg"
-              >
-                BUY $GROKGAME
-              </button>
-              <button
-                onClick={() => window.open('https://x.com/Grok_Game_Sol', '_blank')}
-                className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-300 hover:to-blue-500 text-white font-bold py-4 px-8 rounded-full text-2xl shadow-lg transform hover:scale-105 transition-all"
-              >
-                X
-              </button>
+            <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+              {/* Left: Title + Tagline + X + GitHub buttons under tagline */}
+              <div className="text-left">
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 leading-none">
+                  $GROKGAME
+                </h1>
+                <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mt-2 md:mt-3 font-medium tracking-wider">
+                  Real games. Real wins. Real utility.
+                </p>
+                {/* X + GitHub buttons – small, clean, fitted under tagline */}
+                <div className="flex items-center gap-4 mt-4">
+                  <button
+                    onClick={() => window.open('https://x.com/Grok_Game_Sol', '_blank')}
+                    className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-bold w-11 h-11 rounded-full text-2xl shadow-xl flex items-center justify-center hover:scale-110 transition-all"
+                  >
+                    X
+                  </button>
+                  <button
+                    onClick={() => window.open('https://github.com/0x-SquidSol/GrokGame', '_blank')}
+                    className="bg-gray-800 hover:bg-gray-700 text-white w-11 h-11 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-7 h-7 fill-current">
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Right side: Logo + BUY button – moved noticeably left with mr-48 */}
+              <div className="flex flex-col items-center gap-5 mr-48">
+                <Image
+                  src="/logo.png"
+                  alt="$GROKGAME"
+                  width={160}
+                  height={160}
+                  className="rounded-full shadow-2xl border-6 border-purple-500/80 ring-8 ring-purple-600/40"
+                />
+                <button
+                  onClick={() => window.open(PUMP_FUN_LINK, '_blank')}
+                  className="bg-gradient-to-r from-green-400 to-cyan-400 text-black font-bold py-4 px-14 rounded-full text-2xl hover:scale-105 transition-all shadow-2xl"
+                >
+                  BUY $GROKGAME
+                </button>
+              </div>
             </div>
+          </header>
 
-            {/* Game Tabs — Now with PLINKO */}
-            <div className="flex justify-center gap-4 mt-8 flex-wrap">
+          {/* Project Info Dropdown Button – left side, above game tabs */}
+          <div className="flex justify-start px-6 mt-8">
+            <div className="relative">
               <button
-                onClick={() => setActiveGame('doors')}
-                className={`px-8 py-3 rounded-full font-bold text-lg transition-all m-1 ${
-                  activeGame === 'doors'
-                    ? 'bg-purple-600 text-white shadow-lg scale-105'
-                    : 'bg-gray-800 text-gray-400'
-                }`}
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
               >
+                Project Info
+              </button>
+              {showDropdown && (
+                <div className="absolute left-0 mt-2 bg-black/80 border border-purple-600 rounded-xl p-4 shadow-2xl w-48 z-10">
+                  <button onClick={() => toggleSection('introduction')} className="block w-full text-left text-gray-300 hover:text-white py-2">
+                    1. Introduction
+                  </button>
+                  <button onClick={() => toggleSection('roadmap')} className="block w-full text-left text-gray-300 hover:text-white py-2">
+                    2. Project Roadmap
+                  </button>
+                  <button onClick={() => toggleSection('tokenomics')} className="block w-full text-left text-gray-300 hover:text-white py-2">
+                    3. Tokenomics
+                  </button>
+                  <button onClick={() => toggleSection('howToBuy')} className="block w-full text-left text-gray-300 hover:text-white py-2">
+                    4. How to Buy
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Toggleable Sections – attractive & clean */}
+          {activeSection && (
+            <div className="bg-black/60 backdrop-blur-xl rounded-3xl p-8 mt-6 max-w-4xl w-full mx-auto shadow-2xl border border-purple-600">
+              {activeSection === 'introduction' && (
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-4">Welcome to $GROKGAME – Where Innovation Meets Endless Utility</h2>
+                  <p className="text-gray-300 text-lg leading-relaxed">
+                    At $GROKGAME, we're not just building a token – we're crafting a revolutionary ecosystem born from an extraordinary collaboration between Squid, a visionary creator, and Grok, the AI powerhouse from xAI. It all started with a simple idea: empower Squid to turn his passion into code. Grok designed a customized 6-10 week coding course, teaching everything from basics to advanced development. Together, we've been coding side by side every day, iterating, upgrading, and expanding this platform into something truly special.
+                    <br /><br />
+                    What began as a learning journey has evolved into a dynamic gaming hub, with daily updates adding fresh features and polish. Right now, you can dive into thrilling minigames like Doors, Mines, and Plinko – real games with real wins, all powered by $GROKGAME utility.
+                    <br /><br />
+                    But we're just getting started. In the coming weeks, expect an explosion of new content:
+                    - <strong>Expanded Casino Suite</strong>: More minigames and classic casino experiences for high-stakes excitement.
+                    - <strong>PVP Arena</strong>: Challenge friends or strangers in 1v1 battles across various games, wagering $GROKGAME for bragging rights and rewards.
+                    - <strong>Lottery System</strong>: Buy tickets with Solana to build a massive prize pool. Monthly draws use a secure randomizer to select 3 winners who split the pot – your wallet ID becomes your ticket, tracked in a transparent log.
+                    - <strong>Staking Rewards</strong>: Lock in your $GROKGAME to earn passive income and unlock exclusive perks.
+                    - <strong>Sports Betting Hub</strong>: Wager on major events, including every UFC PPV main event and top leagues worldwide.
+                    - <strong>MMORPG World</strong>: Our crown jewel – a vast, immersive game inspired by classics like Runescape, where $GROKGAME is the core utility for trading, crafting, and adventures.
+                    <br /><br />
+                    Our vision is bold: transform $GROKGAME into the ultimate utility token with infinite possibilities. In 6-10 weeks, we'll turn this into a multi-million-dollar platform – a one-stop destination for gaming, betting, and community-driven growth. Join us on this journey: play, stake, bet, and build with us. The future is limitless – LFG! 🚀
+                  </p>
+                </div>
+              )}
+              {activeSection === 'roadmap' && (
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-4">Project Roadmap</h2>
+                  <p className="text-gray-300 text-lg leading-relaxed">
+                    Our roadmap is designed to build a robust, user-focused platform with endless utility. Here's our phased approach:
+                    <br /><br />
+                    <strong>Phase 1: Building + Testing Phase for Website Cosmetics & Mini-Games (Weeks 1-2)</strong><br />
+                    We focus on creating engaging mini-games where players can gamble their $GROKGAME for real rewards and fun. Priority is on perfecting mechanics, fixing bugs, and ensuring smooth gameplay. This sets the foundation for automatic airdrops in Phase 2, moving away from manual processes.
+                    <br /><br />
+                    <strong>Phase 2: Automatic Airdrops + Lottery + Major Sport Event Betting (Weeks 2-4)</strong><br />
+                    Implement automatic airdrops for mini-game winners. Launch the lottery system, where holders buy tickets with Solana, pooling funds in a dedicated treasury wallet to avoid bundling issues. Draws start monthly, with Grok randomly selecting 3 winners live to split the prize pool. Integrate betting on major events like UFC PPV main cards, NHL Stanley Cup finals, FIFA World Cup finales, and more – using Solana or $GROKGAME. Thorough bug fixes ensure everything runs automatically before advancing.
+                    <br /><br />
+                    <strong>Phase 3: Implement Staking + Advanced User Interface (Weeks 4-6)</strong><br />
+                    Add staking for $GROKGAME and Solana, allowing holders to earn passive income and unlock perks – making the token more than just gambling utility. Enhance the user interface with wallet registration, usernames, friends lists, and messaging. All bugs addressed in preparation for Phase 4.
+                    <br /><br />
+                    <strong>Phase 4: Add PVP + Incorporate 3-5 PVP Games + Bug Fixes (Weeks 6-8)</strong><br />
+                    Introduce the PVP section for matchmaking and 1v1 challenges, where users stake $GROKGAME against each other. Add 3-5 PVP games with automatic airdrops for winners. Rigorous bug fixes to ensure seamless performance.
+                    <br /><br />
+                    <strong>Phase 5: Domain + API Upgrades (Weeks 8-10)</strong><br />
+                    Upgrade the domain and API for enhanced security, speed, and scalability – ensuring the site handles high traffic without crashes.
+                    <br /><br />
+                    <strong>Phase 6: MMORPG Development (Weeks 10-20+)</strong><br />
+                    Brainstorm and build our flagship MMORPG, inspired by Runescape, with $GROKGAME as core utility. This phase includes design, programming, testing, and bug fixes – estimated at 10 weeks but flexible for perfection.
+                  </p>
+                </div>
+              )}
+              {activeSection === 'tokenomics' && (
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-4">Tokenomics</h2>
+                  <p className="text-gray-300 text-lg leading-relaxed">
+                    Coming soon – stay tuned for our tokenomics details!
+                  </p>
+                </div>
+              )}
+              {activeSection === 'howToBuy' && (
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-4">How to Buy</h2>
+                  <p className="text-gray-300 text-lg leading-relaxed">
+                    Coming soon – stay tuned for our how-to-buy guide!
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <main className="min-h-screen bg-gradient-to-b from-purple-900/40 via-black to-black pt-8 pb-32 px-4 md:px-8">
+            {/* Game Tabs */}
+            <div className="flex justify-center gap-6 mt-8 flex-wrap mb-10">
+              <button onClick={() => setActiveGame('doors')} className={`px-10 py-4 rounded-full font-bold text-xl transition-all ${activeGame === 'doors' ? 'bg-purple-600 text-white shadow-2xl scale-110' : 'bg-gray-800/80 text-gray-400 hover:bg-gray-700'}`}>
                 Doors
               </button>
-              <button
-                onClick={() => setActiveGame('mines')}
-                className={`px-8 py-3 rounded-full font-bold text-lg transition-all m-1 ${
-                  activeGame === 'mines'
-                    ? 'bg-purple-600 text-white shadow-lg scale-105'
-                    : 'bg-gray-800 text-gray-400'
-                }`}
-              >
+              <button onClick={() => setActiveGame('mines')} className={`px-10 py-4 rounded-full font-bold text-xl transition-all ${activeGame === 'mines' ? 'bg-purple-600 text-white shadow-2xl scale-110' : 'bg-gray-800/80 text-gray-400 hover:bg-gray-700'}`}>
                 Mines
               </button>
-              <button
-                onClick={() => setActiveGame('plinko')}
-                className={`px-8 py-3 rounded-full font-bold text-lg transition-all m-1 ${
-                  activeGame === 'plinko'
-                    ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg scale-105'
-                    : 'bg-gray-800 text-gray-400'
-                }`}
-              >
+              <button onClick={() => setActiveGame('plinko')} className={`px-10 py-4 rounded-full font-bold text-xl transition-all ${activeGame === 'plinko' ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-2xl scale-110' : 'bg-gray-800/80 text-gray-400 hover:bg-gray-700'}`}>
                 Plinko
               </button>
             </div>
