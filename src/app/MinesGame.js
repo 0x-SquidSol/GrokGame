@@ -14,7 +14,7 @@ const TOKEN_MINT = new PublicKey('5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump')
 const DECIMALS = 6;
 const BET_AMOUNT = 25_000_000_000n;
 const TREASURY_WALLET = new PublicKey('HYvDA63EK9N3G6hvvvz6PiAzMhmSCMB4LVDPW9QYBLWx');
-const PAYOUTS = [0, 1.2, 1.5, 2.0, 3.0, 20.0];
+const PAYOUTS = [0, 2, 5, 8, 13, 18];  // Adjusted to match requested amounts: 2x=50k, 5x=125k, 8x=200k, 13x=325k, 18x=450k (index 1-5 for gems found)
 
 export default function MinesGame({ onWin }) {
   const { connection } = useConnection();
@@ -28,6 +28,7 @@ export default function MinesGame({ onWin }) {
   const [result, setResult] = useState('');
   const [balance, setBalance] = useState(0n);
   const [loading, setLoading] = useState(false);
+  const [showCashOut, setShowCashOut] = useState(false);  // New state for cash out prompt
 
   useEffect(() => {
     if (publicKey) updateBalance();
@@ -56,23 +57,18 @@ export default function MinesGame({ onWin }) {
       const treasuryATA = await getAssociatedTokenAddress(TOKEN_MINT, TREASURY_WALLET);
       const tx = new Transaction();
 
-      // Create ATA if missing
       try { await getAccount(connection, userATA); }
       catch { tx.add(createAssociatedTokenAccountInstruction(publicKey, userATA, publicKey, TOKEN_MINT)); }
 
-      // Transfer bet
       tx.add(createTransferCheckedInstruction(
         userATA, TOKEN_MINT, treasuryATA, publicKey, BET_AMOUNT, DECIMALS
       ));
 
-      // CRITICAL FIX: Use 'finalized' commitment → never hangs
       tx.recentBlockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
       tx.feePayer = publicKey;
 
-      // Send transaction
       const sig = await sendTransaction(tx, connection);
 
-      // Instant provably fair bombs from signature
       const bombIndices = [];
       let i = 0;
       while (bombIndices.length < 20 && i < 100) {
@@ -82,7 +78,6 @@ export default function MinesGame({ onWin }) {
         i++;
       }
 
-      // UI unlocks instantly
       setBombs(bombIndices);
       setPlaying(true);
       setGameOver(false);
@@ -90,8 +85,8 @@ export default function MinesGame({ onWin }) {
       setGrid(Array(25).fill('?'));
       setResult('Bet placed! Find the 5 gems...');
       setLoading(false);
+      setShowCashOut(false);
 
-      // Update balance in background
       setTimeout(updateBalance, 1000);
 
     } catch (e) {
@@ -103,7 +98,7 @@ export default function MinesGame({ onWin }) {
   };
 
   const pick = (i) => {
-    if (!playing || gameOver || grid[i] !== '?') return;
+    if (!playing || gameOver || grid[i] !== '?' || showCashOut) return;
 
     const newGrid = [...grid];
     if (bombs.includes(i)) {
@@ -118,17 +113,36 @@ export default function MinesGame({ onWin }) {
       const newCount = safeCount + 1;
       setSafeCount(newCount);
       const payout = PAYOUTS[newCount];
-      const winAmount = Number(BET_AMOUNT * BigInt(payout * 10 ** DECIMALS)) / 10 ** DECIMALS;
+      const winAmount = Number(BET_AMOUNT * BigInt(payout)) / 10 ** DECIMALS;
 
-      setResult(`Gem! ${newCount}/5 — Potential: ${winAmount.toLocaleString()} (${payout}x)`);
+      setResult(`Gem! ${newCount}/5 — Cash out for ${winAmount.toLocaleString()} (${payout}x) or continue?`);
+      setShowCashOut(true);  // Show cash out prompt after each gem
 
       if (newCount === 5) {
+        setShowCashOut(false);
         setGameOver(true);
         setPlaying(false);
-        setResult(`JACKPOT! 20× WIN! ${winAmount.toLocaleString()} $GROKGAME`);
+        setResult(`JACKPOT! 18× WIN! ${winAmount.toLocaleString()} $GROKGAME`);
         onWin?.(winAmount.toString(), 'Mines');
       }
     }
+  };
+
+  const cashOut = () => {
+    const payout = PAYOUTS[safeCount];
+    const winAmount = Number(BET_AMOUNT * BigInt(payout)) / 10 ** DECIMALS;
+    setResult(`Cashed out! WIN ${payout}x → ${winAmount.toLocaleString()} $GROKGAME`);
+    onWin?.(winAmount.toString(), 'Mines');
+    setGameOver(true);
+    setPlaying(false);
+    setShowCashOut(false);
+  };
+
+  const continueGame = () => {
+    setShowCashOut(false);
+    const payout = PAYOUTS[safeCount];
+    const winAmount = Number(BET_AMOUNT * BigInt(payout)) / 10 ** DECIMALS;
+    setResult(`Gem! ${safeCount}/5 — Potential next: ${winAmount.toLocaleString()} (${payout}x)`);
   };
 
   const reset = () => {
@@ -138,12 +152,13 @@ export default function MinesGame({ onWin }) {
     setGameOver(false);
     setPlaying(false);
     setSafeCount(0);
+    setShowCashOut(false);
   };
 
   return (
     <div className="text-center">
       <h1 className="text-3xl font-bold mb-4 text-green-400">MINES</h1>
-      <p className="mb-2 text-gray-300">20 bombs • 5 gems • up to 20×</p>
+      <p className="mb-2 text-gray-300">20 bombs • 5 gems • up to 18×</p>
       <p className="mb-6 text-sm text-gray-400">
         Balance: {(Number(balance) / 1e6).toFixed(0).toLocaleString()} $GROKGAME
       </p>
@@ -165,7 +180,7 @@ export default function MinesGame({ onWin }) {
           <button
             key={i}
             onClick={() => pick(i)}
-            disabled={!playing || gameOver || cell !== '?'}
+            disabled={!playing || gameOver || cell !== '?' || showCashOut}
             className={`aspect-square text-6xl font-bold rounded-2xl transition-all duration-300 shadow-2xl border-4 border-zinc-800
               ${cell === '?' ? 'bg-gradient-to-br from-zinc-800 to-zinc-900 hover:scale-110 cursor-pointer' : ''}
               ${cell === 'Bomb' ? 'bg-gradient-to-br from-red-600 to-red-900 scale-125 animate-pulse' : ''}
@@ -177,7 +192,24 @@ export default function MinesGame({ onWin }) {
         ))}
       </div>
 
-      {gameOver && (
+      {showCashOut && (
+        <div className="mt-8 flex justify-center gap-4">
+          <button
+            onClick={cashOut}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full text-xl transition shadow-xl"
+          >
+            Cash Out
+          </button>
+          <button
+            onClick={continueGame}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-xl transition shadow-xl"
+          >
+            Continue
+          </button>
+        </div>
+      )}
+
+      {(gameOver || !playing) && (
         <button
           onClick={reset}
           className="mt-12 bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-12 rounded-full text-2xl transition shadow-xl"
