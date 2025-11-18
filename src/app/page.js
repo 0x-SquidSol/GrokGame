@@ -11,13 +11,12 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useEffect, useState } from 'react';
 import { clusterApiUrl } from '@solana/web3.js';
 
-// ── Wallet Adapter Imports ──────────────────────
+// Wallet Adapter Imports
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { registerMwa, createDefaultAuthorizationCache, createDefaultChainSelector, createDefaultWalletNotFoundHandler } from '@solana-mobile/wallet-standard-mobile';
 import '@solana/wallet-adapter-react-ui/styles.css';
-// ──────────────────────────────────────────────────
 
 const PUMP_FUN_LINK = 'https://pump.fun/coin/5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump';
 
@@ -243,9 +242,23 @@ export default function Home() {
               )}
               {activeSection === 'tokenomics' && (
                 <div>
-                  <h2 className="text-3xl font-bold text-white mb-4">Tokenomics</h2>
+                  <h2 className="text-3xl font-bold text-white mb-4">Tokenomics of $GROKGAME</h2>
                   <p className="text-gray-300 text-lg leading-relaxed">
-                    Coming soon – stay tuned for our tokenomics details!
+                    $GROKGAME is designed with fair, transparent, and community-driven tokenomics inspired by PumpFun's launch model, ensuring accessibility and long-term value for holders. Here's a breakdown of our structure:
+                    <br /><br />
+                    - <strong>Total Supply</strong>: 1,000,000,000 $GROKGAME tokens – a fixed supply to maintain scarcity and potential value appreciation over time.
+                    <br />
+                    - <strong>Liquidity Pool</strong>: 100% of the initial liquidity is locked in a Solana-based pool on PumpFun, providing a stable foundation for trading without team reservations or presales. This ensures a fair launch for all participants.
+                    <br />
+                    - <strong>No Taxes</strong>: Zero buy/sell taxes – what you see is what you get. All transactions are efficient and cost-effective, maximizing returns for players and traders.
+                    <br />
+                    - <strong>Treasury Wallet Management</strong>: The treasury wallet collects funds from game bets and other platform activities. To promote sustainability and reward loyalty, anytime the treasury grows above 3.5% of total supply value, excess funds are locked for a minimum of 3 months and airdropped to long-term holders who have held $GROKGAME from the lock start date. This mechanism encourages holding and distributes wealth back to the community.
+                    <br />
+                    - <strong>Burn Mechanism</strong>: A portion of game fees and unused treasury funds will be periodically burned, reducing circulating supply and potentially increasing token value over time.
+                    <br />
+                    - <strong>Community Allocation</strong>: No team tokens or allocations – 100% community-owned from day one, fostering a decentralized and inclusive ecosystem.
+                    <br /><br />
+                    These tokenomics prioritize utility through gaming rewards, staking (coming soon), and airdrops, making $GROKGAME more than just a memecoin – it's a token with real, growing value. Hold, play, and watch your investment thrive! 🚀
                   </p>
                 </div>
               )}
