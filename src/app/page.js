@@ -15,15 +15,27 @@ import { clusterApiUrl } from '@solana/web3.js';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { registerMwa, createDefaultAuthorizationCache, createDefaultChainSelector, createDefaultWalletNotFoundHandler } from '@solana-mobile/wallet-standard-mobile';
 import '@solana/wallet-adapter-react-ui/styles.css';
 // ──────────────────────────────────────────────────
 
+const PUMP_FUN_LINK = 'https://pump.fun/coin/5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump';
+
 const endpoint = process.env.NEXT_PUBLIC_HELIUS_RPC || clusterApiUrl('mainnet-beta');
+
+// Dynamic import for MobileWalletAdapter to avoid SSR build error in Turbopack
+const MobileWalletAdapter = typeof window !== 'undefined' ? (await import('@solana-mobile/wallet-adapter-mobile')).MobileWalletAdapter : null;
 
 const wallets = [
   new PhantomWalletAdapter(),
   new SolflareWalletAdapter(),
+  ...(MobileWalletAdapter ? [new MobileWalletAdapter({
+    appIdentity: {
+      name: 'GROKGAME',
+      uri: window.location.origin,
+      icon: '/logo.png',
+    },
+    cluster: 'mainnet-beta',
+  })] : []),
 ];
 
 export default function Home() {
@@ -36,25 +48,6 @@ export default function Home() {
     { name: 'GrokGod', win: '250,000' },
     { name: 'Anon420', win: '187,500' },
   ];
-
-  // ── Mobile Wallet Standard Registration ──
-  useEffect(() => {
-    const uri = typeof window !== 'undefined' ? window.location.origin : 'https://grok-game-gamma.vercel.app';
-    registerMwa({
-      appIdentity: {
-        name: 'GROKGAME',
-        uri,
-        icon: '/logo.png',
-      },
-      authorizationCache: createDefaultAuthorizationCache(),
-      chainSelector: createDefaultChainSelector(),
-      onWalletNotFound: createDefaultWalletNotFoundHandler(),
-      // Optional: Add for QR fallback on desktop (helps debug mobile issues)
-      remoteHostAuthority: uri,
-    });
-    // Debug logging for mobile issues
-    console.log('MWA registered with URI:', uri);
-  }, []);
 
   useEffect(() => {
     if (publicKey && !username) {
@@ -124,7 +117,7 @@ export default function Home() {
 
             <div className="flex justify-center gap-4 mt-6">
               <button
-                onClick={() => window.open('https://pump.fun/coin/5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump', '_blank')}
+                onClick={() => window.open(PUMP_FUN_LINK, '_blank')}
                 className="bg-gradient-to-r from-green-400 to-cyan-400 text-black font-bold py-3 px-8 rounded-full text-xl hover:scale-105 transition shadow-lg"
               >
                 BUY $GROKGAME
@@ -137,7 +130,7 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Game Tabs */}
+            {/* Game Tabs — Now with PLINKO */}
             <div className="flex justify-center gap-4 mt-8 flex-wrap">
               <button
                 onClick={() => setActiveGame('doors')}
