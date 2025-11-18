@@ -38,7 +38,7 @@ export default function DoorsGame({ onWin }) {
       const account = await getAccount(connection, ata);
       setBalance(BigInt(account.amount));
     } catch (e) {
-      console.error('Balance fetch failed:', e.message); // Logging for debug
+      console.error('Balance fetch failed:', e.message);
       setBalance(0n);
     }
   };
@@ -67,14 +67,14 @@ export default function DoorsGame({ onWin }) {
       tx.feePayer = publicKey;
 
       const sig = await sendTransaction(tx, connection);
-      await connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, 'finalized'); // Changed to 'finalized' for reliability
+      await connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, 'finalized');
 
       const txInfo = await connection.getTransaction(sig, { commitment: 'finalized', maxSupportedTransactionVersion: 0 });
-      console.log('txInfo:', txInfo); // Debug: Check if this is null on Vercel
+      console.log('txInfo:', txInfo); // Debug log
       let hash = txInfo?.transaction?.message?.recentBlockhash || '';
       let winner = parseInt(hash.slice(-2), 16) % 3;
 
-      if (isNaN(winner)) { // Fallback if blockhash fails (e.g., txInfo null)
+      if (isNaN(winner)) {
         console.warn('Blockhash failed - using fallback randomness');
         winner = Math.floor(Math.random() * 3);
       }
@@ -98,7 +98,6 @@ export default function DoorsGame({ onWin }) {
 
     setSelected(i);
 
-    // Reveal all doors with proper emojis (ensures one winner always)
     const revealed = [0, 1, 2].map(idx => idx === winningDoor ? '🏆' : '💣');
     setDoors(revealed);
 
@@ -132,7 +131,6 @@ export default function DoorsGame({ onWin }) {
         </div>
       )}
 
-      {/* BET BUTTON */}
       {winningDoor === null && (
         <button
           onClick={start}
@@ -143,7 +141,6 @@ export default function DoorsGame({ onWin }) {
         </button>
       )}
 
-      {/* DOORS */}
       <div className="flex justify-center gap-10 mt-12">
         {[0, 1, 2].map((i) => (
           <button
@@ -162,14 +159,13 @@ export default function DoorsGame({ onWin }) {
                       : 'bg-gradient-to-b from-gray-700 to-gray-800'
               }`}
           >
-            <div className="absolute inset-0 flex items-center justify-center text-5xl"> {/* Further reduced to text-5xl to ensure no overlap */}
+            <div className="absolute inset-0 flex items-center justify-center text-6xl">
               {selected === null ? '?' : doors[i]}
             </div>
           </button>
         ))}
       </div>
 
-      {/* PLAY AGAIN */}
       {selected !== null && (
         <button
           onClick={reset}
