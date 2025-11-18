@@ -19,7 +19,6 @@ import { registerMwa, createDefaultAuthorizationCache, createDefaultChainSelecto
 import '@solana/wallet-adapter-react-ui/styles.css';
 // ──────────────────────────────────────────────────
 
-// FINAL FIX: Use your real Helius key (or any fast RPC) so token balances actually load
 const endpoint = process.env.NEXT_PUBLIC_HELIUS_RPC || clusterApiUrl('mainnet-beta');
 
 const wallets = [
@@ -38,20 +37,24 @@ export default function Home() {
     { name: 'Anon420', win: '187,500' },
   ];
 
-  // ── Mobile Wallet Standard Registration (2025+ correct method) ──
+  // ── Mobile Wallet Standard Registration ──
   useEffect(() => {
+    const uri = typeof window !== 'undefined' ? window.location.origin : 'https://grok-game-gamma.vercel.app';
     registerMwa({
       appIdentity: {
         name: 'GROKGAME',
-        uri: typeof window !== 'undefined' ? window.location.origin : 'https://grok-game-gamma.vercel.app',
+        uri,
         icon: '/logo.png',
       },
       authorizationCache: createDefaultAuthorizationCache(),
       chainSelector: createDefaultChainSelector(),
       onWalletNotFound: createDefaultWalletNotFoundHandler(),
+      // Optional: Add for QR fallback on desktop (helps debug mobile issues)
+      remoteHostAuthority: uri,
     });
+    // Debug logging for mobile issues
+    console.log('MWA registered with URI:', uri);
   }, []);
-  // ─────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (publicKey && !username) {
