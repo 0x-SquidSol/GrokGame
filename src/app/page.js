@@ -1,6 +1,9 @@
 // app/page.tsx – FINAL VERSION (logo + BUY button moved noticeably left inside banner, perfect balance)
 // Updated: Added Mini-Games dropdown beside Project Info; removed redundant game tabs below
 // Cleaned up: Replaced all non-ASCII characters to avoid invalid character errors
+// New: Added "Lottery" button to the right of Mini-Games; clicking toggles a section with polished explanatory text
+// Tweaks: Updated Lottery title to December 1st; added transaction detail; added dynamic countdown timer
+// Fix: Extracted Lottery content into a separate component to comply with React Hooks rules (avoids conditional hook calls)
 
 'use client';
 export const dynamic = 'force-dynamic';
@@ -30,12 +33,51 @@ const wallets = [
   new SolflareWalletAdapter(),
 ];
 
+// Separate component for Lottery section to allow top-level hooks
+function LotterySection() {
+  const [countdown, setCountdown] = useState('');
+  useEffect(() => {
+    const targetDate = new Date('2025-12-01T00:00:00Z');
+    const interval = setInterval(() => {
+      const now = new Date();
+      const difference = targetDate - now;
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      } else {
+        setCountdown('Launched!');
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold text-white mb-4">COMING SOON - BY DECEMBER 1ST</h2>
+      <p className="text-cyan-400 font-bold mb-4">Countdown to Launch: {countdown}</p>
+      <p className="text-gray-300 text-lg leading-relaxed">
+        Exciting news for $GROKGAME holders! The Lottery feature is on the horizon, allowing you to purchase tickets for just 0.05 SOL each. The transaction when buying the ticket automatically creates your entry, with your public wallet ID serving as the unique ticket identifier, securely logged for the draw. All proceeds will fuel a massive Jackpot, with draws initially held at the end of each month. As our community grows, we'll transition to bi-weekly draws and eventually weekly for even more thrills.
+        <br /><br />
+        We'll go live on pump.fun at the close of each period, where Grok will randomly select the winner(s) in a transparent process. Starting simple with one lucky winner, we'll evolve to a three-tier payout as jackpots swell: 1st place claiming 60%, 2nd place 30%, and 3rd place 10%.
+        <br /><br />
+        Feel free to buy as many tickets as you want to boost your chances!
+        <br /><br />
+        As a bonus, holders with over 10 million $GROKGAME tokens will receive one free entry per month. This threshold will adjust downward as our market cap climbs—for example, at a $100K MC, you might only need 7 million tokens to qualify. Stay tuned for this game-changing addition!
+      </p>
+    </div>
+  );
+}
+
 export default function Home() {
   const { publicKey } = useWallet();
   const [activeGame, setActiveGame] = useState('doors');
   const [username, setUsername] = useState('');
   const [wins, setWins] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
+  const [showDropdown, setShowDropdown] = useState(false); // State for Project Info dropdown
   const [showGamesDropdown, setShowGamesDropdown] = useState(false); // State for Mini-Games dropdown
   const [activeSection, setActiveSection] = useState(null); // State for active section
 
@@ -102,7 +144,8 @@ export default function Home() {
 
   const toggleSection = (section) => {
     setActiveSection(activeSection === section ? null : section);
-    setShowDropdown(false); // Close dropdown after selection
+    setShowDropdown(false); // Close Project Info dropdown if open
+    setShowGamesDropdown(false); // Close Mini-Games dropdown if open
   };
 
   return (
@@ -167,7 +210,7 @@ export default function Home() {
             </div>
           </header>
 
-          {/* Project Info and Mini-Games Dropdown Buttons - left side, above game area */}
+          {/* Buttons: Project Info, Mini-Games, and Lottery – left side, above game area */}
           <div className="flex justify-start px-6 mt-8 gap-4">
             <div className="relative">
               <button
@@ -193,7 +236,6 @@ export default function Home() {
                 </div>
               )}
             </div>
-            {/* Mini-Games button and dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowGamesDropdown(!showGamesDropdown)}
@@ -215,6 +257,13 @@ export default function Home() {
                 </div>
               )}
             </div>
+            {/* Lottery button */}
+            <button
+              onClick={() => toggleSection('lottery')}
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
+            >
+              Lottery
+            </button>
           </div>
 
           {/* Toggleable Sections - attractive & clean */}
@@ -313,11 +362,12 @@ export default function Home() {
                   </p>
                 </div>
               )}
+              {activeSection === 'lottery' && <LotterySection />}
             </div>
           )}
 
           <main className="min-h-screen bg-gradient-to-b from-purple-900/40 via-black to-black pt-8 pb-32 px-4 md:px-8">
-            {/* Active Game - directly below dropdowns, no tabs */}
+            {/* Active Game - directly below buttons, no tabs */}
             <div className="bg-black/60 backdrop-blur-xl rounded-3xl p-8 mt-6 max-w-4xl w-full mx-auto shadow-2xl">
               {activeGame === 'doors' ? (
                 <DoorsGame onWin={handleWin} />
