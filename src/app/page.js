@@ -7,6 +7,7 @@
 // New: Added "Sports Betting" button to the right of Lottery; clicking toggles a section with polished explanatory text and countdown
 // New: Added "Staking" button to the right of Sports Betting; clicking toggles a section with suggested polished explanatory text and countdown
 // Tweaks: Updated Staking title to December 22nd with matching countdown; added note on utility for non-betting users
+// New: Added "PvP Mode" button to the right of Staking; clicking toggles a section with polished explanatory text, title "COMING SOON - BY JANUARY 5TH", and countdown
 
 'use client';
 export const dynamic = 'force-dynamic';
@@ -154,6 +155,43 @@ function StakingSection() {
   );
 }
 
+// Separate component for PvP Mode section to allow top-level hooks
+function PvPSection() {
+  const [countdown, setCountdown] = useState('');
+  useEffect(() => {
+    const targetDate = new Date('2026-01-05T00:00:00Z');
+    const interval = setInterval(() => {
+      const now = new Date();
+      const difference = targetDate - now;
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      } else {
+        setCountdown('Launched!');
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold text-white mb-4">COMING SOON - BY JANUARY 5TH</h2>
+      <p className="text-cyan-400 font-bold mb-4">Countdown to Launch: {countdown}</p>
+      <p className="text-gray-300 text-lg leading-relaxed">
+        Gear up for intense competition with PvP Mode on $GROKGAME! By January 5th, we'll roll out our first PvP game, where holders can enter matchmaking to challenge others, stake their tokens, and battle it out—winner takes all. Perfect for competitive spirits who thrive on head-to-head action!
+        <br /><br />
+        We'll quickly expand with four additional games in the PvP section within a week or two of launch. Plus, as our user interface evolves to include friends lists and more, you'll be able to send direct challenge requests for personalized showdowns.
+        <br /><br />
+        The house stays sustainable with a modest 0.015 SOL transaction fee on both ends of each match. Get ready to test your skills and claim victory—PvP Mode is where legends are made!
+      </p>
+    </div>
+  );
+}
+
 export default function Home() {
   const { publicKey } = useWallet();
   const [activeGame, setActiveGame] = useState('doors');
@@ -292,7 +330,7 @@ export default function Home() {
             </div>
           </header>
 
-          {/* Buttons: Project Info, Mini-Games, Lottery, Sports Betting, Staking – left side, above game area */}
+          {/* Buttons: Project Info, Mini-Games, Lottery, Sports Betting, Staking, PvP Mode – left side, above game area */}
           <div className="flex justify-start px-6 mt-8 gap-4">
             <div className="relative">
               <button
@@ -359,6 +397,13 @@ export default function Home() {
               className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
             >
               Staking
+            </button>
+            {/* NEW: PvP Mode button */}
+            <button
+              onClick={() => toggleSection('pvp')}
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
+            >
+              PvP Mode
             </button>
           </div>
 
@@ -461,6 +506,7 @@ export default function Home() {
               {activeSection === 'lottery' && <LotterySection />}
               {activeSection === 'sportsBetting' && <SportsBettingSection />}
               {activeSection === 'staking' && <StakingSection />}
+              {activeSection === 'pvp' && <PvPSection />}
             </div>
           )}
 
