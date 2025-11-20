@@ -5,6 +5,8 @@
 // Tweaks: Updated Lottery title to December 1st; added transaction detail; added dynamic countdown timer
 // Fix: Extracted Lottery content into a separate component to comply with React Hooks rules (avoids conditional hook calls)
 // New: Added "Sports Betting" button to the right of Lottery; clicking toggles a section with polished explanatory text and countdown
+// New: Added "Staking" button to the right of Sports Betting; clicking toggles a section with suggested polished explanatory text and countdown
+// Tweaks: Updated Staking title to December 22nd with matching countdown; added note on utility for non-betting users
 
 'use client';
 export const dynamic = 'force-dynamic';
@@ -105,6 +107,48 @@ function SportsBettingSection() {
         Odds will be set at integration time based on Grok's real-time data for each event and locked until the start, when betting closes. Start small with a minimum bet of 0.1 SOL and up to a maximum of 1 SOL per wager. A flat 0.025 SOL fee per bet will support the treasury, ensuring smooth payouts even in challenging months for the house.
         <br /><br />
         As we expand, expect more sports, events, and higher max bets to keep the action going. Stay tuned—this is your chance to turn sports knowledge into real rewards!
+      </p>
+    </div>
+  );
+}
+
+// Separate component for Staking section to allow top-level hooks
+function StakingSection() {
+  const [countdown, setCountdown] = useState('');
+  useEffect(() => {
+    const targetDate = new Date('2025-12-22T00:00:00Z');
+    const interval = setInterval(() => {
+      const now = new Date();
+      const difference = targetDate - now;
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      } else {
+        setCountdown('Launched!');
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold text-white mb-4">COMING SOON - BY DECEMBER 22ND</h2>
+      <p className="text-cyan-400 font-bold mb-4">Countdown to Launch: {countdown}</p>
+      <p className="text-gray-300 text-lg leading-relaxed">
+        Exciting passive earning opportunities are coming to $GROKGAME! Holders will be able to stake their tokens in a secure, Solana-based pool to earn rewards, powered by a portion of platform fees from mini-games, lottery ticket sales, and sports betting. This creates a self-sustaining ecosystem where community activity directly benefits stakers—perfect utility for those who prefer passive growth over the active betting features elsewhere on the site.
+        <br /><br />
+        Rewards will be distributed in $GROKGAME (with potential SOL bonuses for top tiers), based on your staked amount and duration. Expect competitive APYs starting around 10-20% (adjusted dynamically based on treasury health and participation to ensure fairness—no fixed promises, as yields will vary with platform revenue). Longer lock-up periods (e.g., 30/60/90 days) unlock bonus multipliers for extra incentives.
+        <br /><br />
+        To keep things fair and sustainable:
+        - Minimum stake: 1 million $GROKGAME.
+        - No maximum, but tiered perks for larger holders (e.g., exclusive airdrops or early access to new features).
+        - A small 2-5% protocol fee on rewards or unstaking will support the house treasury—funding burns, marketing, and further development to grow the ecosystem.
+        <br /><br />
+        Unstaking is flexible after the lock-up, with instant options for a higher fee if needed. All staking will be transparent, with on-chain tracking and regular audits planned. This isn't just holding—it's earning while building the future of $GROKGAME. Get ready to lock in and level up!
       </p>
     </div>
   );
@@ -248,7 +292,7 @@ export default function Home() {
             </div>
           </header>
 
-          {/* Buttons: Project Info, Mini-Games, Lottery, and Sports Betting – left side, above game area */}
+          {/* Buttons: Project Info, Mini-Games, Lottery, Sports Betting, Staking – left side, above game area */}
           <div className="flex justify-start px-6 mt-8 gap-4">
             <div className="relative">
               <button
@@ -302,12 +346,19 @@ export default function Home() {
             >
               Lottery
             </button>
-            {/* NEW: Sports Betting button */}
+            {/* Sports Betting button */}
             <button
               onClick={() => toggleSection('sportsBetting')}
               className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
             >
               Sports Betting
+            </button>
+            {/* Staking button */}
+            <button
+              onClick={() => toggleSection('staking')}
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
+            >
+              Staking
             </button>
           </div>
 
@@ -338,25 +389,25 @@ export default function Home() {
                 <div>
                   <h2 className="text-3xl font-bold text-white mb-4">Project Roadmap</h2>
                   <p className="text-gray-300 text-lg leading-relaxed">
-                    Our roadmap is designed to build a robust, user-focused platform with endless utility. Here is our phased approach:
+                    Our roadmap is designed to build a robust, user-focused platform with endless utility. Here's our phased approach:
                     <br /><br />
                     <strong>Phase 1: Building + Testing Phase for Website Cosmetics & Mini-Games (Weeks 1-2)</strong><br />
                     We focus on creating engaging mini-games where players can gamble their $GROKGAME for real rewards and fun. Priority is on perfecting mechanics, fixing bugs, and ensuring smooth gameplay. This sets the foundation for automatic airdrops in Phase 2, moving away from manual processes.
                     <br /><br />
                     <strong>Phase 2: Automatic Airdrops + Lottery + Major Sport Event Betting (Weeks 2-4)</strong><br />
-                    Implement automatic airdrops for mini-game winners. Launch the lottery system, where holders buy tickets with Solana, pooling funds in a dedicated treasury wallet to avoid bundling issues. Draws start monthly, with Grok randomly selecting 3 winners live to split the prize pool. Integrate betting on major events like UFC PPV main cards, NHL Stanley Cup finals, FIFA World Cup finales, and more - using Solana or $GROKGAME. Thorough bug fixes ensure everything runs automatically before advancing.
+                    Implement automatic airdrops for mini-game winners. Launch the lottery system, where holders buy tickets with Solana, pooling funds in a dedicated treasury wallet to avoid bundling issues. Draws start monthly, with Grok randomly selecting 3 winners live to split the prize pool. Integrate betting on major events like UFC PPV main cards, NHL Stanley Cup finals, FIFA World Cup finales, and more – using Solana or $GROKGAME. Thorough bug fixes ensure everything runs automatically before advancing.
                     <br /><br />
                     <strong>Phase 3: Implement Staking + Advanced User Interface (Weeks 4-6)</strong><br />
-                    Add staking for $GROKGAME and Solana, allowing holders to earn passive income and unlock perks - making the token more than just gambling utility. Enhance the user interface with wallet registration, usernames, friends lists, and messaging. All bugs addressed in preparation for Phase 4.
+                    Add staking for $GROKGAME and Solana, allowing holders to earn passive income and unlock perks – making the token more than just gambling utility. Enhance the user interface with wallet registration, usernames, friends lists, and messaging. All bugs addressed in preparation for Phase 4.
                     <br /><br />
                     <strong>Phase 4: Add PVP + Incorporate 3-5 PVP Games + Bug Fixes (Weeks 6-8)</strong><br />
                     Introduce the PVP section for matchmaking and 1v1 challenges, where users stake $GROKGAME against each other. Add 3-5 PVP games with automatic airdrops for winners. Rigorous bug fixes to ensure seamless performance.
                     <br /><br />
                     <strong>Phase 5: Domain + API Upgrades (Weeks 8-10)</strong><br />
-                    Upgrade the domain and API for enhanced security, speed, and scalability - ensuring the site handles high traffic without crashes.
+                    Upgrade the domain and API for enhanced security, speed, and scalability – ensuring the site handles high traffic without crashes.
                     <br /><br />
                     <strong>Phase 6: MMORPG Development (Weeks 10-20+)</strong><br />
-                    Brainstorm and build our flagship MMORPG, inspired by Runescape, with $GROKGAME as core utility. This phase includes design, programming, testing, and bug fixes - estimated at 10 weeks but flexible for perfection.
+                    Brainstorm and build our flagship MMORPG, inspired by Runescape, with $GROKGAME as core utility. This phase includes design, programming, testing, and bug fixes – estimated at 10 weeks but flexible for perfection.
                   </p>
                 </div>
               )}
@@ -364,21 +415,21 @@ export default function Home() {
                 <div>
                   <h2 className="text-3xl font-bold text-white mb-4">Tokenomics of $GROKGAME</h2>
                   <p className="text-gray-300 text-lg leading-relaxed">
-                    $GROKGAME is designed with fair, transparent, and community-driven tokenomics inspired by PumpFun's launch model, ensuring accessibility and long-term value for holders. Here is a breakdown of our structure:
+                    $GROKGAME is designed with fair, transparent, and community-driven tokenomics inspired by PumpFun's launch model, ensuring accessibility and long-term value for holders. Here's a breakdown of our structure:
                     <br /><br />
-                    - <strong>Total Supply</strong>: 1,000,000,000 $GROKGAME tokens - a fixed supply to maintain scarcity and potential value appreciation over time.
+                    - <strong>Total Supply</strong>: 1,000,000,000 $GROKGAME tokens – a fixed supply to maintain scarcity and potential value appreciation over time.
                     <br />
                     - <strong>Liquidity Pool</strong>: 100% of the initial liquidity is locked in a Solana-based pool on PumpFun, providing a stable foundation for trading without team reservations or presales. This ensures a fair launch for all participants.
                     <br />
-                    - <strong>No Taxes</strong>: Zero buy/sell taxes - what you see is what you get. All transactions are efficient and cost-effective, maximizing returns for players and traders.
+                    - <strong>No Taxes</strong>: Zero buy/sell taxes – what you see is what you get. All transactions are efficient and cost-effective, maximizing returns for players and traders.
                     <br />
                     - <strong>Treasury Wallet Management</strong>: The treasury wallet collects funds from game bets and other platform activities. To promote sustainability and reward loyalty, anytime the treasury grows above 3.5% of total supply value, excess funds are locked for a minimum of 3 months and airdropped to long-term holders who have held $GROKGAME from the lock start date. This mechanism encourages holding and distributes wealth back to the community.
                     <br />
                     - <strong>Burn Mechanism</strong>: A portion of game fees and unused treasury funds will be periodically burned, reducing circulating supply and potentially increasing token value over time.
                     <br />
-                    - <strong>Community Allocation</strong>: No team tokens or allocations - 100% community-owned from day one, fostering a decentralized and inclusive ecosystem.
+                    - <strong>Community Allocation</strong>: No team tokens or allocations – 100% community-owned from day one, fostering a decentralized and inclusive ecosystem.
                     <br /><br />
-                    These tokenomics prioritize utility through gaming rewards, staking (coming soon), and airdrops, making $GROKGAME more than just a memecoin - it is a token with real, growing value. Hold, play, and watch your investment thrive!
+                    These tokenomics prioritize utility through gaming rewards, staking (coming soon), and airdrops, making $GROKGAME more than just a memecoin – it's a token with real, growing value. Hold, play, and watch your investment thrive! 🚀
                   </p>
                 </div>
               )}
@@ -388,7 +439,7 @@ export default function Home() {
                   <p className="text-gray-300 text-lg leading-relaxed">
                     Ready to join the $GROKGAME revolution? Buying is quick and easy through PumpFun on the Solana blockchain. Follow these simple steps to get started:
                     <br /><br />
-                    1. <strong>Set Up a Solana Wallet</strong>: If you do not have one, download a Solana-compatible wallet like Phantom, Solflare, or Backpack from their official websites or app stores. Create a new wallet or import an existing one, and fund it with SOL (Solana's native token). You can buy SOL on exchanges like Binance, Coinbase, or directly in your wallet via credit card.
+                    1. <strong>Set Up a Solana Wallet</strong>: If you don't have one, download a Solana-compatible wallet like Phantom, Solflare, or Backpack from their official websites or app stores. Create a new wallet or import an existing one, and fund it with SOL (Solana's native token). You can buy SOL on exchanges like Binance, Coinbase, or directly in your wallet via credit card.
                     <br />
                     2. <strong>Visit PumpFun</strong>: Go to the official PumpFun website at <a href="https://pump.fun" className="text-cyan-400 underline hover:text-cyan-300">pump.fun</a>. Connect your Solana wallet by clicking "Connect Wallet" in the top right corner.
                     <br />
@@ -396,24 +447,25 @@ export default function Home() {
                     <br />
                     4. <strong>Swap SOL for $GROKGAME</strong>: Enter the amount of SOL you want to swap. Review the transaction details (including any network fees), then confirm the swap in your wallet. Your $GROKGAME tokens will appear in your wallet shortly after.
                     <br />
-                    5. <strong>Verify Your Purchase</strong>: Check your wallet balance to confirm the $GROKGAME tokens have arrived. You are now a holder!
+                    5. <strong>Verify Your Purchase</strong>: Check your wallet balance to confirm the $GROKGAME tokens have arrived. You're now a holder!
                     <br /><br />
                     <strong>Important Notes</strong>:
                     - Always use the official PumpFun site and double-check the contract address to avoid scams.
                     - Solana transactions are fast and cheap, but gas fees can vary based on network congestion.
                     - For security, enable two-factor authentication on your wallet and never share your seed phrase.
                     <br /><br />
-                    As a $GROKGAME holder, you are getting in early on pre-utility supply - meaning your tokens have massive potential as we roll out features. Use them to gamble in our variety of mini-games like Doors, Mines, and Plinko for real wins. Soon, you will be able to stake for passive rewards and gamble in even more ways, like PVP battles and sports betting. Plus, all holders are eligible for random treasury airdrops as a thank-you for your support. Hold tight and watch the utility grow!
+                    As a $GROKGAME holder, you're getting in early on pre-utility supply – meaning your tokens have massive potential as we roll out features. Use them to gamble in our variety of mini-games like Doors, Mines, and Plinko for real wins. Soon, you'll be able to stake for passive rewards and gamble in even more ways, like PVP battles and sports betting. Plus, all holders are eligible for random treasury airdrops as a thank-you for your support. Hold tight and watch the utility grow! 🚀
                   </p>
                 </div>
               )}
               {activeSection === 'lottery' && <LotterySection />}
               {activeSection === 'sportsBetting' && <SportsBettingSection />}
+              {activeSection === 'staking' && <StakingSection />}
             </div>
           )}
 
           <main className="min-h-screen bg-gradient-to-b from-purple-900/40 via-black to-black pt-8 pb-32 px-4 md:px-8">
-            {/* Active Game - directly below buttons, no tabs */}
+            {/* Active Game */}
             <div className="bg-black/60 backdrop-blur-xl rounded-3xl p-8 mt-6 max-w-4xl w-full mx-auto shadow-2xl">
               {activeGame === 'doors' ? (
                 <DoorsGame onWin={handleWin} />
