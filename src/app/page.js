@@ -1,4 +1,6 @@
 // app/page.tsx – FINAL VERSION (logo + BUY button moved noticeably left inside banner, perfect balance)
+// Updated: Added Mini-Games dropdown beside Project Info; removed redundant game tabs below
+// Cleaned up: Replaced all non-ASCII characters to avoid invalid character errors
 
 'use client';
 export const dynamic = 'force-dynamic';
@@ -11,13 +13,13 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useEffect, useState } from 'react';
 import { clusterApiUrl } from '@solana/web3.js';
 
-// ── Wallet Adapter Imports ──────────────────────
+// -- Wallet Adapter Imports ---------------------
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { registerMwa, createDefaultAuthorizationCache, createDefaultChainSelector, createDefaultWalletNotFoundHandler } from '@solana-mobile/wallet-standard-mobile';
 import '@solana/wallet-adapter-react-ui/styles.css';
-// ──────────────────────────────────────────────────
+// -----------------------------------------------
 
 const PUMP_FUN_LINK = 'https://pump.fun/coin/5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump';
 
@@ -34,6 +36,7 @@ export default function Home() {
   const [username, setUsername] = useState('');
   const [wins, setWins] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
+  const [showGamesDropdown, setShowGamesDropdown] = useState(false); // State for Mini-Games dropdown
   const [activeSection, setActiveSection] = useState(null); // State for active section
 
   const leaderboard = [
@@ -111,7 +114,7 @@ export default function Home() {
             <WalletMultiButton style={{ height: '56px', borderRadius: '999px', fontSize: '18px' }} />
           </div>
 
-          {/* BANNER – Logo + BUY button now moved significantly left (perfect balance, no overlap) */}
+          {/* BANNER - Logo + BUY button now moved significantly left (perfect balance, no overlap) */}
           <header className="sticky top-0 z-40 bg-black py-10 border-8 border-purple-600 shadow-2xl shadow-purple-600/60 overflow-hidden">
             {/* Full glowing border pop */}
             <div className="absolute inset-0 pointer-events-none shadow-[0_0_80px_#c084fc] opacity-60"></div>
@@ -126,7 +129,7 @@ export default function Home() {
                 <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mt-2 md:mt-3 font-medium tracking-wider">
                   Real games. Real wins. Real utility.
                 </p>
-                {/* X + GitHub buttons – small, clean, fitted under tagline */}
+                {/* X + GitHub buttons - small, clean, fitted under tagline */}
                 <div className="flex items-center gap-4 mt-4">
                   <button
                     onClick={() => window.open('https://x.com/Grok_Game_Sol', '_blank')}
@@ -145,7 +148,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right side: Logo + BUY button – moved noticeably left with mr-48 */}
+              {/* Right side: Logo + BUY button - moved noticeably left with mr-48 */}
               <div className="flex flex-col items-center gap-5 mr-48">
                 <Image
                   src="/logo.png"
@@ -164,8 +167,8 @@ export default function Home() {
             </div>
           </header>
 
-          {/* Project Info Dropdown Button – left side, above game tabs */}
-          <div className="flex justify-start px-6 mt-8">
+          {/* Project Info and Mini-Games Dropdown Buttons - left side, above game area */}
+          <div className="flex justify-start px-6 mt-8 gap-4">
             <div className="relative">
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
@@ -190,28 +193,50 @@ export default function Home() {
                 </div>
               )}
             </div>
+            {/* Mini-Games button and dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowGamesDropdown(!showGamesDropdown)}
+                className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
+              >
+                Mini-Games
+              </button>
+              {showGamesDropdown && (
+                <div className="absolute left-0 mt-2 bg-black/80 border border-purple-600 rounded-xl p-4 shadow-2xl w-48 z-10">
+                  <button onClick={() => { setActiveGame('doors'); setShowGamesDropdown(false); }} className="block w-full text-left text-gray-300 hover:text-white py-2">
+                    Doors Game
+                  </button>
+                  <button onClick={() => { setActiveGame('mines'); setShowGamesDropdown(false); }} className="block w-full text-left text-gray-300 hover:text-white py-2">
+                    Mines Game
+                  </button>
+                  <button onClick={() => { setActiveGame('plinko'); setShowGamesDropdown(false); }} className="block w-full text-left text-gray-300 hover:text-white py-2">
+                    Plinko
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Toggleable Sections – attractive & clean */}
+          {/* Toggleable Sections - attractive & clean */}
           {activeSection && (
             <div className="bg-black/60 backdrop-blur-xl rounded-3xl p-8 mt-6 max-w-4xl w-full mx-auto shadow-2xl border border-purple-600">
               {activeSection === 'introduction' && (
                 <div>
-                  <h2 className="text-3xl font-bold text-white mb-4">Welcome to $GROKGAME – Where Innovation Meets Endless Utility</h2>
+                  <h2 className="text-3xl font-bold text-white mb-4">Welcome to $GROKGAME - Where Innovation Meets Endless Utility</h2>
                   <p className="text-gray-300 text-lg leading-relaxed">
-                    At $GROKGAME, we're not just building a token – we're crafting a revolutionary ecosystem born from an extraordinary collaboration between Squid, a visionary creator, and Grok, the AI powerhouse from xAI. It all started with a simple idea: empower Squid to turn his passion into code. Grok designed a customized 6-10 week coding course, teaching everything from basics to advanced development. Together, we've been coding side by side every day, iterating, upgrading, and expanding this platform into something truly special.
+                    At $GROKGAME, we are not just building a token - we are crafting a revolutionary ecosystem born from an extraordinary collaboration between Squid, a visionary creator, and Grok, the AI powerhouse from xAI. It all started with a simple idea: empower Squid to turn his passion into code. Grok designed a customized 6-10 week coding course, teaching everything from basics to advanced development. Together, we have been coding side by side every day, iterating, upgrading, and expanding this platform into something truly special.
                     <br /><br />
-                    What began as a learning journey has evolved into a dynamic gaming hub, with daily updates adding fresh features and polish. Right now, you can dive into thrilling minigames like Doors, Mines, and Plinko – real games with real wins, all powered by $GROKGAME utility.
+                    What began as a learning journey has evolved into a dynamic gaming hub, with daily updates adding fresh features and polish. Right now, you can dive into thrilling minigames like Doors, Mines, and Plinko - real games with real wins, all powered by $GROKGAME utility.
                     <br /><br />
-                    But we're just getting started. In the coming weeks, expect an explosion of new content:
+                    But we are just getting started. In the coming weeks, expect an explosion of new content:
                     - <strong>Expanded Casino Suite</strong>: More minigames and classic casino experiences for high-stakes excitement.
                     - <strong>PVP Arena</strong>: Challenge friends or strangers in 1v1 battles across various games, wagering $GROKGAME for bragging rights and rewards.
-                    - <strong>Lottery System</strong>: Buy tickets with Solana to build a massive prize pool. Monthly draws use a secure randomizer to select 3 winners who split the pot – your wallet ID becomes your ticket, tracked in a transparent log.
+                    - <strong>Lottery System</strong>: Buy tickets with Solana to build a massive prize pool. Monthly draws use a secure randomizer to select 3 winners who split the pot - your wallet ID becomes your ticket, tracked in a transparent log.
                     - <strong>Staking Rewards</strong>: Lock in your $GROKGAME to earn passive income and unlock exclusive perks.
                     - <strong>Sports Betting Hub</strong>: Wager on major events, including every UFC PPV main event and top leagues worldwide.
-                    - <strong>MMORPG World</strong>: Our crown jewel – a vast, immersive game inspired by classics like Runescape, where $GROKGAME is the core utility for trading, crafting, and adventures.
+                    - <strong>MMORPG World</strong>: Our crown jewel - a vast, immersive game inspired by classics like Runescape, where $GROKGAME is the core utility for trading, crafting, and adventures.
                     <br /><br />
-                    Our vision is bold: transform $GROKGAME into the ultimate utility token with infinite possibilities. In 6-10 weeks, we'll turn this into a multi-million-dollar platform – a one-stop destination for gaming, betting, and community-driven growth. Join us on this journey: play, stake, bet, and build with us. The future is limitless – LFG! 🚀
+                    Our vision is bold: transform $GROKGAME into the ultimate utility token with infinite possibilities. In 6-10 weeks, we will turn this into a multi-million-dollar platform - a one-stop destination for gaming, betting, and community-driven growth. Join us on this journey: play, stake, bet, and build with us. The future is limitless - LFG!
                   </p>
                 </div>
               )}
@@ -219,25 +244,25 @@ export default function Home() {
                 <div>
                   <h2 className="text-3xl font-bold text-white mb-4">Project Roadmap</h2>
                   <p className="text-gray-300 text-lg leading-relaxed">
-                    Our roadmap is designed to build a robust, user-focused platform with endless utility. Here's our phased approach:
+                    Our roadmap is designed to build a robust, user-focused platform with endless utility. Here is our phased approach:
                     <br /><br />
                     <strong>Phase 1: Building + Testing Phase for Website Cosmetics & Mini-Games (Weeks 1-2)</strong><br />
                     We focus on creating engaging mini-games where players can gamble their $GROKGAME for real rewards and fun. Priority is on perfecting mechanics, fixing bugs, and ensuring smooth gameplay. This sets the foundation for automatic airdrops in Phase 2, moving away from manual processes.
                     <br /><br />
                     <strong>Phase 2: Automatic Airdrops + Lottery + Major Sport Event Betting (Weeks 2-4)</strong><br />
-                    Implement automatic airdrops for mini-game winners. Launch the lottery system, where holders buy tickets with Solana, pooling funds in a dedicated treasury wallet to avoid bundling issues. Draws start monthly, with Grok randomly selecting 3 winners live to split the prize pool. Integrate betting on major events like UFC PPV main cards, NHL Stanley Cup finals, FIFA World Cup finales, and more – using Solana or $GROKGAME. Thorough bug fixes ensure everything runs automatically before advancing.
+                    Implement automatic airdrops for mini-game winners. Launch the lottery system, where holders buy tickets with Solana, pooling funds in a dedicated treasury wallet to avoid bundling issues. Draws start monthly, with Grok randomly selecting 3 winners live to split the prize pool. Integrate betting on major events like UFC PPV main cards, NHL Stanley Cup finals, FIFA World Cup finales, and more - using Solana or $GROKGAME. Thorough bug fixes ensure everything runs automatically before advancing.
                     <br /><br />
                     <strong>Phase 3: Implement Staking + Advanced User Interface (Weeks 4-6)</strong><br />
-                    Add staking for $GROKGAME and Solana, allowing holders to earn passive income and unlock perks – making the token more than just gambling utility. Enhance the user interface with wallet registration, usernames, friends lists, and messaging. All bugs addressed in preparation for Phase 4.
+                    Add staking for $GROKGAME and Solana, allowing holders to earn passive income and unlock perks - making the token more than just gambling utility. Enhance the user interface with wallet registration, usernames, friends lists, and messaging. All bugs addressed in preparation for Phase 4.
                     <br /><br />
                     <strong>Phase 4: Add PVP + Incorporate 3-5 PVP Games + Bug Fixes (Weeks 6-8)</strong><br />
                     Introduce the PVP section for matchmaking and 1v1 challenges, where users stake $GROKGAME against each other. Add 3-5 PVP games with automatic airdrops for winners. Rigorous bug fixes to ensure seamless performance.
                     <br /><br />
                     <strong>Phase 5: Domain + API Upgrades (Weeks 8-10)</strong><br />
-                    Upgrade the domain and API for enhanced security, speed, and scalability – ensuring the site handles high traffic without crashes.
+                    Upgrade the domain and API for enhanced security, speed, and scalability - ensuring the site handles high traffic without crashes.
                     <br /><br />
                     <strong>Phase 6: MMORPG Development (Weeks 10-20+)</strong><br />
-                    Brainstorm and build our flagship MMORPG, inspired by Runescape, with $GROKGAME as core utility. This phase includes design, programming, testing, and bug fixes – estimated at 10 weeks but flexible for perfection.
+                    Brainstorm and build our flagship MMORPG, inspired by Runescape, with $GROKGAME as core utility. This phase includes design, programming, testing, and bug fixes - estimated at 10 weeks but flexible for perfection.
                   </p>
                 </div>
               )}
@@ -245,21 +270,21 @@ export default function Home() {
                 <div>
                   <h2 className="text-3xl font-bold text-white mb-4">Tokenomics of $GROKGAME</h2>
                   <p className="text-gray-300 text-lg leading-relaxed">
-                    $GROKGAME is designed with fair, transparent, and community-driven tokenomics inspired by PumpFun's launch model, ensuring accessibility and long-term value for holders. Here's a breakdown of our structure:
+                    $GROKGAME is designed with fair, transparent, and community-driven tokenomics inspired by PumpFun's launch model, ensuring accessibility and long-term value for holders. Here is a breakdown of our structure:
                     <br /><br />
-                    - <strong>Total Supply</strong>: 1,000,000,000 $GROKGAME tokens – a fixed supply to maintain scarcity and potential value appreciation over time.
+                    - <strong>Total Supply</strong>: 1,000,000,000 $GROKGAME tokens - a fixed supply to maintain scarcity and potential value appreciation over time.
                     <br />
                     - <strong>Liquidity Pool</strong>: 100% of the initial liquidity is locked in a Solana-based pool on PumpFun, providing a stable foundation for trading without team reservations or presales. This ensures a fair launch for all participants.
                     <br />
-                    - <strong>No Taxes</strong>: Zero buy/sell taxes – what you see is what you get. All transactions are efficient and cost-effective, maximizing returns for players and traders.
+                    - <strong>No Taxes</strong>: Zero buy/sell taxes - what you see is what you get. All transactions are efficient and cost-effective, maximizing returns for players and traders.
                     <br />
                     - <strong>Treasury Wallet Management</strong>: The treasury wallet collects funds from game bets and other platform activities. To promote sustainability and reward loyalty, anytime the treasury grows above 3.5% of total supply value, excess funds are locked for a minimum of 3 months and airdropped to long-term holders who have held $GROKGAME from the lock start date. This mechanism encourages holding and distributes wealth back to the community.
                     <br />
                     - <strong>Burn Mechanism</strong>: A portion of game fees and unused treasury funds will be periodically burned, reducing circulating supply and potentially increasing token value over time.
                     <br />
-                    - <strong>Community Allocation</strong>: No team tokens or allocations – 100% community-owned from day one, fostering a decentralized and inclusive ecosystem.
+                    - <strong>Community Allocation</strong>: No team tokens or allocations - 100% community-owned from day one, fostering a decentralized and inclusive ecosystem.
                     <br /><br />
-                    These tokenomics prioritize utility through gaming rewards, staking (coming soon), and airdrops, making $GROKGAME more than just a memecoin – it's a token with real, growing value. Hold, play, and watch your investment thrive! 🚀
+                    These tokenomics prioritize utility through gaming rewards, staking (coming soon), and airdrops, making $GROKGAME more than just a memecoin - it is a token with real, growing value. Hold, play, and watch your investment thrive!
                   </p>
                 </div>
               )}
@@ -269,7 +294,7 @@ export default function Home() {
                   <p className="text-gray-300 text-lg leading-relaxed">
                     Ready to join the $GROKGAME revolution? Buying is quick and easy through PumpFun on the Solana blockchain. Follow these simple steps to get started:
                     <br /><br />
-                    1. <strong>Set Up a Solana Wallet</strong>: If you don't have one, download a Solana-compatible wallet like Phantom, Solflare, or Backpack from their official websites or app stores. Create a new wallet or import an existing one, and fund it with SOL (Solana's native token). You can buy SOL on exchanges like Binance, Coinbase, or directly in your wallet via credit card.
+                    1. <strong>Set Up a Solana Wallet</strong>: If you do not have one, download a Solana-compatible wallet like Phantom, Solflare, or Backpack from their official websites or app stores. Create a new wallet or import an existing one, and fund it with SOL (Solana's native token). You can buy SOL on exchanges like Binance, Coinbase, or directly in your wallet via credit card.
                     <br />
                     2. <strong>Visit PumpFun</strong>: Go to the official PumpFun website at <a href="https://pump.fun" className="text-cyan-400 underline hover:text-cyan-300">pump.fun</a>. Connect your Solana wallet by clicking "Connect Wallet" in the top right corner.
                     <br />
@@ -277,14 +302,14 @@ export default function Home() {
                     <br />
                     4. <strong>Swap SOL for $GROKGAME</strong>: Enter the amount of SOL you want to swap. Review the transaction details (including any network fees), then confirm the swap in your wallet. Your $GROKGAME tokens will appear in your wallet shortly after.
                     <br />
-                    5. <strong>Verify Your Purchase</strong>: Check your wallet balance to confirm the $GROKGAME tokens have arrived. You're now a holder!
+                    5. <strong>Verify Your Purchase</strong>: Check your wallet balance to confirm the $GROKGAME tokens have arrived. You are now a holder!
                     <br /><br />
                     <strong>Important Notes</strong>:
                     - Always use the official PumpFun site and double-check the contract address to avoid scams.
                     - Solana transactions are fast and cheap, but gas fees can vary based on network congestion.
                     - For security, enable two-factor authentication on your wallet and never share your seed phrase.
                     <br /><br />
-                    As a $GROKGAME holder, you're getting in early on pre-utility supply – meaning your tokens have massive potential as we roll out features. Use them to gamble in our variety of mini-games like Doors, Mines, and Plinko for real wins. Soon, you'll be able to stake for passive rewards and gamble in even more ways, like PVP battles and sports betting. Plus, all holders are eligible for random treasury airdrops as a thank-you for your support. Hold tight and watch the utility grow! 🚀
+                    As a $GROKGAME holder, you are getting in early on pre-utility supply - meaning your tokens have massive potential as we roll out features. Use them to gamble in our variety of mini-games like Doors, Mines, and Plinko for real wins. Soon, you will be able to stake for passive rewards and gamble in even more ways, like PVP battles and sports betting. Plus, all holders are eligible for random treasury airdrops as a thank-you for your support. Hold tight and watch the utility grow!
                   </p>
                 </div>
               )}
@@ -292,20 +317,7 @@ export default function Home() {
           )}
 
           <main className="min-h-screen bg-gradient-to-b from-purple-900/40 via-black to-black pt-8 pb-32 px-4 md:px-8">
-            {/* Game Tabs */}
-            <div className="flex justify-center gap-6 mt-8 flex-wrap mb-10">
-              <button onClick={() => setActiveGame('doors')} className={`px-10 py-4 rounded-full font-bold text-xl transition-all ${activeGame === 'doors' ? 'bg-purple-600 text-white shadow-2xl scale-110' : 'bg-gray-800/80 text-gray-400 hover:bg-gray-700'}`}>
-                Doors
-              </button>
-              <button onClick={() => setActiveGame('mines')} className={`px-10 py-4 rounded-full font-bold text-xl transition-all ${activeGame === 'mines' ? 'bg-purple-600 text-white shadow-2xl scale-110' : 'bg-gray-800/80 text-gray-400 hover:bg-gray-700'}`}>
-                Mines
-              </button>
-              <button onClick={() => setActiveGame('plinko')} className={`px-10 py-4 rounded-full font-bold text-xl transition-all ${activeGame === 'plinko' ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-2xl scale-110' : 'bg-gray-800/80 text-gray-400 hover:bg-gray-700'}`}>
-                Plinko
-              </button>
-            </div>
-
-            {/* Active Game */}
+            {/* Active Game - directly below dropdowns, no tabs */}
             <div className="bg-black/60 backdrop-blur-xl rounded-3xl p-8 mt-6 max-w-4xl w-full mx-auto shadow-2xl">
               {activeGame === 'doors' ? (
                 <DoorsGame onWin={handleWin} />
