@@ -4,6 +4,7 @@
 // New: Added "Lottery" button to the right of Mini-Games; clicking toggles a section with polished explanatory text
 // Tweaks: Updated Lottery title to December 1st; added transaction detail; added dynamic countdown timer
 // Fix: Extracted Lottery content into a separate component to comply with React Hooks rules (avoids conditional hook calls)
+// New: Added "Sports Betting" button to the right of Lottery; clicking toggles a section with polished explanatory text and countdown
 
 'use client';
 export const dynamic = 'force-dynamic';
@@ -67,6 +68,43 @@ function LotterySection() {
         Feel free to buy as many tickets as you want to boost your chances!
         <br /><br />
         As a bonus, holders with over 10 million $GROKGAME tokens will receive one free entry per month. This threshold will adjust downward as our market cap climbs—for example, at a $100K MC, you might only need 7 million tokens to qualify. Stay tuned for this game-changing addition!
+      </p>
+    </div>
+  );
+}
+
+// Separate component for Sports Betting section to allow top-level hooks
+function SportsBettingSection() {
+  const [countdown, setCountdown] = useState('');
+  useEffect(() => {
+    const targetDate = new Date('2025-12-01T00:00:00Z');
+    const interval = setInterval(() => {
+      const now = new Date();
+      const difference = targetDate - now;
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      } else {
+        setCountdown('Launched!');
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold text-white mb-4">COMING SOON - BY DECEMBER 1ST</h2>
+      <p className="text-cyan-400 font-bold mb-4">Countdown to Launch: {countdown}</p>
+      <p className="text-gray-300 text-lg leading-relaxed">
+        Get ready for major sports betting on $GROKGAME! Holders will soon be able to wager Solana and win big on select sporting events. We'll kick off with UFC PPV main events and other high-profile matchups, like World Series championship games, Stanley Cup finals, and more.
+        <br /><br />
+        Odds will be set at integration time based on Grok's real-time data for each event and locked until the start, when betting closes. Start small with a minimum bet of 0.1 SOL and up to a maximum of 1 SOL per wager. A flat 0.025 SOL fee per bet will support the treasury, ensuring smooth payouts even in challenging months for the house.
+        <br /><br />
+        As we expand, expect more sports, events, and higher max bets to keep the action going. Stay tuned—this is your chance to turn sports knowledge into real rewards!
       </p>
     </div>
   );
@@ -210,7 +248,7 @@ export default function Home() {
             </div>
           </header>
 
-          {/* Buttons: Project Info, Mini-Games, and Lottery – left side, above game area */}
+          {/* Buttons: Project Info, Mini-Games, Lottery, and Sports Betting – left side, above game area */}
           <div className="flex justify-start px-6 mt-8 gap-4">
             <div className="relative">
               <button
@@ -263,6 +301,13 @@ export default function Home() {
               className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
             >
               Lottery
+            </button>
+            {/* NEW: Sports Betting button */}
+            <button
+              onClick={() => toggleSection('sportsBetting')}
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
+            >
+              Sports Betting
             </button>
           </div>
 
@@ -363,6 +408,7 @@ export default function Home() {
                 </div>
               )}
               {activeSection === 'lottery' && <LotterySection />}
+              {activeSection === 'sportsBetting' && <SportsBettingSection />}
             </div>
           )}
 
