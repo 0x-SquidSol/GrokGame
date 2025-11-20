@@ -8,6 +8,7 @@
 // New: Added "Staking" button to the right of Sports Betting; clicking toggles a section with suggested polished explanatory text and countdown
 // Tweaks: Updated Staking title to December 22nd with matching countdown; added note on utility for non-betting users
 // New: Added "PvP Mode" button to the right of Staking; clicking toggles a section with polished explanatory text, title "COMING SOON - BY JANUARY 5TH", and countdown
+// New: Added "GrokGame" button to the right of PvP Mode; clicking toggles a section with polished explanatory text, title "COMING SOON - MID-LATE 2026" (no countdown)
 
 'use client';
 export const dynamic = 'force-dynamic';
@@ -192,6 +193,22 @@ function PvPSection() {
   );
 }
 
+// Separate component for GrokGame section (no countdown, so no hooks needed)
+function GrokGameSection() {
+  return (
+    <div>
+      <h2 className="text-3xl font-bold text-white mb-4">COMING SOON - MID-LATE 2026</h2>
+      <p className="text-gray-300 text-lg leading-relaxed">
+        The ultimate vision and crown jewel of our project is GrokGame—a massive multiplayer online role-playing game (MMORPG) inspired by RuneScape, but with its own unique twist. Players will roam vast open worlds, level up skills, embark on quests, and compete against one another in epic battles and collaborations.
+        <br /><br />
+        $GROKGAME holders will gain exclusive access to play, with tiered benefits based on your holdings and duration—think special in-game items, boosted XP rates, and premium features. Early adopters will be rewarded handsomely with unique incentives and rare rewards to kickstart their adventures.
+        <br /><br />
+        More specific details, including gameplay mechanics and additional holder perks, will roll out as development begins. Squid and Grok are thrilled about this milestone—it's where the true magic of $GROKGAME comes to life!
+      </p>
+    </div>
+  );
+}
+
 export default function Home() {
   const { publicKey } = useWallet();
   const [activeGame, setActiveGame] = useState('doors');
@@ -330,7 +347,7 @@ export default function Home() {
             </div>
           </header>
 
-          {/* Buttons: Project Info, Mini-Games, Lottery, Sports Betting, Staking, PvP Mode – left side, above game area */}
+          {/* Buttons: Project Info, Mini-Games, Lottery, Sports Betting, Staking, PvP Mode, GrokGame – left side, above game area */}
           <div className="flex justify-start px-6 mt-8 gap-4">
             <div className="relative">
               <button
@@ -398,12 +415,19 @@ export default function Home() {
             >
               Staking
             </button>
-            {/* NEW: PvP Mode button */}
+            {/* PvP Mode button */}
             <button
               onClick={() => toggleSection('pvp')}
               className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
             >
               PvP Mode
+            </button>
+            {/* NEW: GrokGame button */}
+            <button
+              onClick={() => toggleSection('grokgame')}
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all"
+            >
+              GrokGame
             </button>
           </div>
 
@@ -507,6 +531,7 @@ export default function Home() {
               {activeSection === 'sportsBetting' && <SportsBettingSection />}
               {activeSection === 'staking' && <StakingSection />}
               {activeSection === 'pvp' && <PvPSection />}
+              {activeSection === 'grokgame' && <GrokGameSection />}
             </div>
           )}
 
