@@ -45,7 +45,7 @@ function Countdown({ targetDate }: { targetDate: string }) {
   return <span className="font-bold">{time}</span>;
 }
 
-/* ====================== FULL DETAILED SECTIONS - ALL TEXT RESTORED ====================== */
+/* ====================== FULL DETAILED SECTIONS ====================== */
 const IntroductionSection = () => (
   <>
     <h2 className="text-3xl font-bold text-white mb-6">Welcome to $GROKGAME - Where Innovation Meets Endless Utility</h2>
@@ -65,15 +65,12 @@ const RoadmapSection = () => (
     <p className="text-gray-300 text-lg leading-relaxed">
       Our roadmap is designed to build a robust, user-focused platform with endless utility. Here's our phased approach:<br /><br />
       <strong>Phase 1: Building + Testing Phase for Website Cosmetics & Mini-Games (Weeks 1-2)</strong><br />
-      We focus on creating engaging mini-games where players can gamble their $GROKGAME for real rewards and fun. Priority is on perfecting mechanics, fixing bugs, and ensuring smooth gameplay. This sets the foundation for automatic airdrops in Phase 2.<br /><br />
       <strong>Phase 2: Automatic Airdrops + Lottery + Major Sport Event Betting (Weeks 2-4)</strong><br />
-      Implement automatic airdrops for mini-game winners. Launch the lottery system and sports betting on major events.<br /><br />
       <strong>Phase 3: Implement Staking + Advanced User Interface (Weeks 4-6)</strong><br />
-      Add staking, usernames, friends lists, messaging.<br /><br />
-      <strong>Phase 4: Add PVP + 3-5 PVP Games (Weeks 6-8)</strong><br />
+      <strong>Phase 4: Add PVP + Incorporate 3-5 PVP Games + Bug Fixes (Weeks 6-8)</strong><br />
       <strong>Phase 5: Domain + API Upgrades (Weeks 8-10)</strong><br />
       <strong>Phase 6: MMORPG Development (Weeks 10-20+)</strong><br /><br />
-      Brainstorm and build our flagship RuneScape-inspired MMORPG with $GROKGAME as core utility.
+      Brainstorm and build our flagship MMORPG, inspired by Runescape, with $GROKGAME as core utility.
     </p>
   </>
 );
@@ -86,10 +83,10 @@ const TokenomicsSection = () => (
       • <strong>Total Supply</strong>: 1,000,000,000 $GROKGAME tokens — fixed supply<br />
       • <strong>Liquidity Pool</strong>: 100% of initial liquidity locked on PumpFun<br />
       • <strong>No Taxes</strong>: Zero buy/sell taxes<br />
-      • <strong>Treasury Wallet Management</strong>: Anytime treasury grows above 3.5% of total supply value → excess locked for 3 months & airdropped to long-term holders<br />
-      • <strong>Burn Mechanism</strong>: Portion of game fees and unused treasury funds periodically burned<br />
+      • <strong>Treasury Management</strong>: When treasury &gt; 3.5% of total supply value → excess locked 3 months & airdropped to long-term holders<br />
+      • <strong>Burn Mechanism</strong>: Portion of fees periodically burned<br />
       • <strong>Community Allocation</strong>: No team tokens — 100% community-owned from day one<br /><br />
-      These tokenomics prioritize utility through gaming rewards, staking, and airdrops, making $GROKGAME more than just a memecoin — it's a token with real, growing value. Hold, play, and watch your investment thrive!
+      These tokenomics prioritize utility through gaming rewards, staking, and airdrops. $GROKGAME is built to last.
     </p>
   </>
 );
@@ -99,14 +96,12 @@ const HowToBuySection = () => (
     <h2 className="text-3xl font-bold text-white mb-6">How to Buy $GROKGAME</h2>
     <p className="text-gray-300 text-lg leading-relaxed">
       Ready to join the $GROKGAME revolution? Buying is quick and easy through PumpFun on Solana.<br /><br />
-      1. <strong>Set Up a Solana Wallet</strong>: Download Phantom, Solflare, or Backpack → create/fund with SOL<br />
-      2. <strong>Visit PumpFun</strong>: Go to pump.fun → connect wallet<br />
-      3. <strong>Search for $GROKGAME</strong>: Paste contract address: <code>5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump</code><br />
-      4. <strong>Swap SOL for $GROKGAME</strong>: Enter amount → confirm → done!<br /><br />
-      <strong>Important Notes</strong>:<br />
-      • Always use official PumpFun site & double-check CA to avoid scams<br />
-      • Solana transactions are fast & cheap<br /><br />
-      As a $GROKGAME holder, you're in early on pre-utility supply — massive potential as we roll out features. Use them in mini-games now, stake soon stake for passive rewards, gamble in PVP/sports/lottery. Plus treasury airdrops for holders. Hold tight — utility is coming fast. LFG!
+      1. Set Up a Solana Wallet (Phantom, Solflare, Backpack)<br />
+      2. Fund it with SOL<br />
+      3. Go to pump.fun<br />
+      4. Paste CA: 5EyVEmwQNj9GHu6vdpRoM9uW36HrowwKefdCui1bpump<br />
+      5. Swap → done!<br /><br />
+      Welcome to the winning team. LFG ∞
     </p>
   </>
 );
@@ -149,9 +144,9 @@ function StakingSection() {
         Exciting passive earning opportunities are coming to $GROKGAME! Holders will be able to stake their tokens in a secure, Solana-based pool to earn rewards, powered by a portion of platform fees from mini-games, lottery ticket sales, and sports betting. This creates a self-sustaining ecosystem where community activity directly benefits stakers—perfect utility for those who prefer passive growth over the active betting features.<br /><br />
         Rewards will be distributed in $GROKGAME (with potential SOL bonuses for top tiers), based on your staked amount and duration. Expect competitive APYs starting around 10-20% (adjusted dynamically based on treasury health and participation to ensure fairness—no fixed promises, as yields will vary with platform revenue). Longer lock-up periods (e.g., 30/60/90 days) unlock bonus multipliers for extra incentives.<br /><br />
         To keep things fair and sustainable:<br />
-        - Minimum stake: 1 million $GROKGAME.<br />
-        - No maximum, but tiered perks for larger holders (e.g., exclusive airdrops or early access to new features).<br />
-        - A small 2-5% protocol fee on rewards or unstaking will support the house treasury—funding burns, marketing, and further development to grow the ecosystem.<br /><br />
+        • Minimum stake: 1 million $GROKGAME.<br />
+        • No maximum, but tiered perks for larger holders (e.g., exclusive airdrops or early access).<br />
+        • A small 2-5% protocol fee on rewards or unstaking will support the house treasury—funding burns, marketing, and further development.<br /><br />
         Unstaking is flexible after the lock-up, with instant options for a higher fee if needed. All staking will be transparent, with on-chain tracking and regular audits planned. This isn't just holding—it's earning while building the future of $GROKGAME. Get ready to lock in and level up!
       </p>
     </>
@@ -185,7 +180,7 @@ function GrokGameSection() {
   );
 }
 
-/* ====================== MAIN PAGE - FINAL ====================== */
+/* ====================== MAIN PAGE ====================== */
 export default function Home() {
   const { publicKey } = useWallet();
   const [activeGame, setActiveGame] = useState<string | null>(null);
@@ -203,7 +198,7 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    // @ts-ignore - chains is optional and safe to omit
+    // @ts-ignore
     registerMwa({
       appIdentity: {
         name: 'GROKGAME',
@@ -263,33 +258,34 @@ export default function Home() {
             <WalletMultiButton style={{ height: '56px', borderRadius: '999px', fontSize: '18px' }} />
           </div>
 
-          <header className="bg-black py-6 border-8 border-purple-600 shadow-2xl shadow-purple-600/60 overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none shadow-[0_0_80px_#c084fc] opacity-60"></div>
-            <div className="absolute inset-0 pointer-events-none shadow-[0_0_40px_#ec4899] opacity-40"></div>
+          {/* PERFECT SMALL BANNER */}
+          <header className="bg-black py-4 border-8 border-purple-600 shadow-2xl shadow-purple-600/60 overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none shadow-[0_0_60px_#c084fc] opacity-50"></div>
+            <div className="absolute inset-0 pointer-events-none shadow-[0_0_30px_#ec4899] opacity-30"></div>
 
-            <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
               <div className="text-left">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 leading-none">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 leading-none">
                   $GROKGAME
                 </h1>
-                <p className="text-sm sm:text-md md:text-lg text-gray-300 mt-2 md:mt-3 font-medium tracking-wider">
+                <p className="text-xs sm:text-sm md:text-base text-gray-300 mt-1 font-medium tracking-wider">
                   Real games. Real wins. Real utility.
                 </p>
-                <div className="flex items-center gap-4 mt-4">
-                  <button onClick={() => window.open('https://x.com/Grok_Game_Sol', '_blank')} className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-bold w-7 h-7 rounded-full text-xl shadow-xl flex items-center justify-center hover:scale-110 transition-all">
+                <div className="flex items-center gap-3 mt-3">
+                  <button onClick={() => window.open('https://x.com/Grok_Game_Sol', '_blank')} className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-bold w-6 h-6 rounded-full text-lg shadow-xl flex items-center justify-center hover:scale-110 transition-all">
                     X
                   </button>
-                  <button onClick={() => window.open('https://github.com/0x-SquidSol/GrokGame', '_blank')} className="bg-gray-800 hover:bg-gray-700 text-white w-7 h-7 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all">
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                  <button onClick={() => window.open('https://github.com/0x-SquidSol/GrokGame', '_blank')} className="bg-gray-800 hover:bg-gray-700 text-white w-6 h-6 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                       <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                     </svg>
                   </button>
                 </div>
               </div>
 
-              <div className="flex flex-col items-center gap-3 mr-32">
-                <Image src="/logo.png" alt="$GROKGAME" width={120} height={120} className="rounded-full shadow-2xl border-4 border-purple-500/80 ring-5 ring-purple-600/40" />
-                <button onClick={() => window.open(PUMP_FUN_LINK, '_blank')} className="bg-gradient-to-r from-green-400 to-cyan-400 text-black font-bold py-3 px-9 rounded-full text-xl hover:scale-105 transition-all shadow-2xl">
+              <div className="flex flex-col items-center gap-2 mr-8">
+                <Image src="/logo.png" alt="$GROKGAME" width={80} height={80} className="rounded-full shadow-2xl border-4 border-purple-500/80 ring-4 ring-purple-600/40" />
+                <button onClick={() => window.open(PUMP_FUN_LINK, '_blank')} className="bg-gradient-to-r from-green-400 to-cyan-400 text-black font-bold py-2 px-6 rounded-full text-lg hover:scale-105 transition-all shadow-2xl">
                   BUY $GROKGAME
                 </button>
               </div>
@@ -319,8 +315,8 @@ export default function Home() {
               {showGamesDropdown && (
                 <div className="absolute left-0 mt-2 bg-black/80 border border-purple-600 rounded-xl p-4 shadow-2xl w-48 z-10">
                   <button onClick={() => { setActiveGame('doors'); setShowGamesDropdown(false); setActiveSection(null); }} className="block w-full text-left text-gray-300 hover:text-white py-2">Doors Game</button>
-                  <button onClick={() => { setActiveGame('mines'); setShowGamesDropdown(false); setActiveSection(null); }} className="block w-full text-left text-gray-300 hover:text-white py-2">Mines Game</button>
-                  <button onClick={() => { setActiveGame('plinko'); setShowGamesDropdown(false); setActiveSection(null); }} className="block w-full text-left text-gray-300 hover:text-white py-2">Plinko</button>
+                  <button onClick={() => { setActiveGame('mines'); setShowGamesDropdown(false); setActiveSection(null); }} className="block w/full text-left text-gray-300 hover:text-white py-2">Mines Game</button>
+                  <button onClick={() => { setActiveGame('plinko'); setShowGamesDropdown(false); setActiveSection(null); }} className="block w/full text-left text-gray-300 hover:text-white py-2">Plinko</button>
                 </div>
               )}
             </div>
@@ -377,7 +373,7 @@ export default function Home() {
             )}
           </div>
 
-          {/* Win ticker & leaderboard always visible */}
+          {/* Win ticker & leaderboard */}
           {wins.length > 0 && (
             <div className="mt-8 bg-black/80 rounded-xl p-4 overflow-hidden shadow-xl max-w-4xl mx-auto">
               <div className="animate-marquee whitespace-nowrap">
