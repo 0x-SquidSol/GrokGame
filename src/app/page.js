@@ -9,6 +9,7 @@
 // Tweaks: Updated Staking title to December 22nd with matching countdown; added note on utility for non-betting users
 // New: Added "PvP Mode" button to the right of Staking; clicking toggles a section with polished explanatory text, title "COMING SOON - BY JANUARY 5TH", and countdown
 // New: Added "GrokGame" button to the right of PvP Mode; clicking toggles a section with polished explanatory text, title "COMING SOON - MID-LATE 2026" (no countdown)
+// New: Reduced banner size and contents to 2/3 original; removed sticky behavior so it doesn't follow on scroll
 
 'use client';
 export const dynamic = 'force-dynamic';
@@ -294,8 +295,8 @@ export default function Home() {
             <WalletMultiButton style={{ height: '56px', borderRadius: '999px', fontSize: '18px' }} />
           </div>
 
-          {/* BANNER - Logo + BUY button now moved significantly left (perfect balance, no overlap) */}
-          <header className="sticky top-0 z-40 bg-black py-10 border-8 border-purple-600 shadow-2xl shadow-purple-600/60 overflow-hidden">
+          {/* BANNER - Reduced to 2/3 size; removed sticky behavior */}
+          <header className="bg-black py-6 border-8 border-purple-600 shadow-2xl shadow-purple-600/60 overflow-hidden"> {/* Reduced py-10 to py-6 */}
             {/* Full glowing border pop */}
             <div className="absolute inset-0 pointer-events-none shadow-[0_0_80px_#c084fc] opacity-60"></div>
             <div className="absolute inset-0 pointer-events-none shadow-[0_0_40px_#ec4899] opacity-40"></div>
@@ -303,25 +304,25 @@ export default function Home() {
             <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
               {/* Left: Title + Tagline + X + GitHub buttons under tagline */}
               <div className="text-left">
-                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 leading-none">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 leading-none"> {/* Reduced from 5xl-8xl */}
                   $GROKGAME
                 </h1>
-                <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mt-2 md:mt-3 font-medium tracking-wider">
+                <p className="text-sm sm:text-md md:text-lg text-gray-300 mt-2 md:mt-3 font-medium tracking-wider"> {/* Reduced from lg-2xl */}
                   Real games. Real wins. Real utility.
                 </p>
                 {/* X + GitHub buttons - small, clean, fitted under tagline */}
                 <div className="flex items-center gap-4 mt-4">
                   <button
                     onClick={() => window.open('https://x.com/Grok_Game_Sol', '_blank')}
-                    className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-bold w-11 h-11 rounded-full text-2xl shadow-xl flex items-center justify-center hover:scale-110 transition-all"
+                    className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-400 hover:to-blue-600 text-white font-bold w-7 h-7 rounded-full text-xl shadow-xl flex items-center justify-center hover:scale-110 transition-all" 
                   >
                     X
                   </button>
                   <button
                     onClick={() => window.open('https://github.com/0x-SquidSol/GrokGame', '_blank')}
-                    className="bg-gray-800 hover:bg-gray-700 text-white w-11 h-11 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all"
+                    className="bg-gray-800 hover:bg-gray-700 text-white w-7 h-7 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all" 
                   >
-                    <svg viewBox="0 0 24 24" className="w-7 h-7 fill-current">
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"> {/* Reduced w/h from 7 to 5 */}
                       <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                     </svg>
                   </button>
@@ -329,17 +330,17 @@ export default function Home() {
               </div>
 
               {/* Right side: Logo + BUY button - moved noticeably left with mr-48 */}
-              <div className="flex flex-col items-center gap-5 mr-48">
+              <div className="flex flex-col items-center gap-3 mr-32"> {/* Reduced gap from 5 to 3, mr-48 to mr-32 */}
                 <Image
                   src="/logo.png"
                   alt="$GROKGAME"
-                  width={160}
-                  height={160}
-                  className="rounded-full shadow-2xl border-6 border-purple-500/80 ring-8 ring-purple-600/40"
+                  width={120}
+                  height={120}
+                  className="rounded-full shadow-2xl border-4 border-purple-500/80 ring-5 ring-purple-600/40" 
                 />
                 <button
                   onClick={() => window.open(PUMP_FUN_LINK, '_blank')}
-                  className="bg-gradient-to-r from-green-400 to-cyan-400 text-black font-bold py-4 px-14 rounded-full text-2xl hover:scale-105 transition-all shadow-2xl"
+                  className="bg-gradient-to-r from-green-400 to-cyan-400 text-black font-bold py-3 px-9 rounded-full text-xl hover:scale-105 transition-all shadow-2xl" 
                 >
                   BUY $GROKGAME
                 </button>
@@ -446,9 +447,6 @@ export default function Home() {
                     - <strong>Expanded Casino Suite</strong>: More minigames and classic casino experiences for high-stakes excitement.
                     - <strong>PVP Arena</strong>: Challenge friends or strangers in 1v1 battles across various games, wagering $GROKGAME for bragging rights and rewards.
                     - <strong>Lottery System</strong>: Buy tickets with Solana to build a massive prize pool. Monthly draws use a secure randomizer to select 3 winners who split the pot - your wallet ID becomes your ticket, tracked in a transparent log.
-                    - <strong>Staking Rewards</strong>: Lock in your $GROKGAME to earn passive income and unlock exclusive perks.
-                    - <strong>Sports Betting Hub</strong>: Wager on major events, including every UFC PPV main event and top leagues worldwide.
-                    - <strong>MMORPG World</strong>: Our crown jewel - a vast, immersive game inspired by classics like Runescape, where $GROKGAME is the core utility for trading, crafting, and adventures.
                     <br /><br />
                     Our vision is bold: transform $GROKGAME into the ultimate utility token with infinite possibilities. In 6-10 weeks, we will turn this into a multi-million-dollar platform - a one-stop destination for gaming, betting, and community-driven growth. Join us on this journey: play, stake, bet, and build with us. The future is limitless - LFG!
                   </p>
@@ -498,7 +496,7 @@ export default function Home() {
                     <br />
                     - <strong>Community Allocation</strong>: No team tokens or allocations – 100% community-owned from day one, fostering a decentralized and inclusive ecosystem.
                     <br /><br />
-                    These tokenomics prioritize utility through gaming rewards, staking (coming soon), and airdrops, making $GROKGAME more than just a memecoin – it's a token with real, growing value. Hold, play, and watch your investment thrive! 🚀
+                    These tokenomics prioritize utility through gaming rewards, staking (coming soon), and airdrops, making $GROKGAME more than just a memecoin – it's a token with real, growing value. Hold, play, and watch your investment thrive! 
                   </p>
                 </div>
               )}
@@ -523,7 +521,7 @@ export default function Home() {
                     - Solana transactions are fast and cheap, but gas fees can vary based on network congestion.
                     - For security, enable two-factor authentication on your wallet and never share your seed phrase.
                     <br /><br />
-                    As a $GROKGAME holder, you're getting in early on pre-utility supply – meaning your tokens have massive potential as we roll out features. Use them to gamble in our variety of mini-games like Doors, Mines, and Plinko for real wins. Soon, you'll be able to stake for passive rewards and gamble in even more ways, like PVP battles and sports betting. Plus, all holders are eligible for random treasury airdrops as a thank-you for your support. Hold tight and watch the utility grow! 🚀
+                    As a $GROKGAME holder, you're getting in early on pre-utility supply – meaning your tokens have massive potential as we roll out features. Use them to gamble in our variety of mini-games like Doors, Mines, and Plinko for real wins. Soon, you'll be able to stake for passive rewards and gamble in even more ways, like PVP battles and sports betting. Plus, all holders are eligible for random treasury airdrops as a thank-you for your support. Hold tight and watch the utility grow! 
                   </p>
                 </div>
               )}
