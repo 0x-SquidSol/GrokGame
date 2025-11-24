@@ -5,10 +5,10 @@ import Image from 'next/image';
 import DoorsGame from './DoorsGame';
 import MinesGame from './MinesGame';
 import PlinkoGame from './PlinkoGame';
+import BlackjackGame from './BlackjackGame';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useEffect, useState } from 'react';
 import { clusterApiUrl } from '@solana/web3.js';
-
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
@@ -317,6 +317,9 @@ export default function Home() {
                   <button onClick={() => { setActiveGame('doors'); setShowGamesDropdown(false); setActiveSection(null); }} className="block w-full text-left text-gray-300 hover:text-white py-2">Doors Game</button>
                   <button onClick={() => { setActiveGame('mines'); setShowGamesDropdown(false); setActiveSection(null); }} className="block w/full text-left text-gray-300 hover:text-white py-2">Mines Game</button>
                   <button onClick={() => { setActiveGame('plinko'); setShowGamesDropdown(false); setActiveSection(null); }} className="block w/full text-left text-gray-300 hover:text-white py-2">Plinko</button>
+                <button onClick={() => { setActiveGame('blackjack'); setShowGamesDropdown(false); setActiveSection(null); }} className="block w-full text-left text-gray-300 hover:text-white py-2">
+  Blackjack
+</button>
                 </div>
               )}
             </div>
@@ -347,6 +350,7 @@ export default function Home() {
                 {activeGame === 'doors' && <DoorsGame onWin={handleWin} />}
                 {activeGame === 'mines' && <MinesGame onWin={handleWin} />}
                 {activeGame === 'plinko' && <PlinkoGame onWin={handleWin} />}
+                {activeGame === 'blackjack' && <BlackjackGame onWin={handleWin} />}
               </>
             ) : (
               <div className="flex flex-col items-center justify-center flex-1 pt-10">
